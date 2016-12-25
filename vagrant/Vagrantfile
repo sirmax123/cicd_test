@@ -1,0 +1,282 @@
+sql_root_credentials = {
+  user:     'root',
+  password: 'r00tme',
+  host:     '127.0.0.1'
+}
+
+sql_databases = {
+  petclinic: {
+    name: 'petclinic',
+    username: 'petclinic',
+    password: 'petclinic',
+    allowed_hosts: [ 
+      '127.0.0.1', 
+      '10.0.1.3'
+    ]
+  },
+  other_petclinic: {
+    name: 'other_petclinic',
+    username: 'other_petclinic',
+    password: 'other_petclinic',
+    allowed_hosts: [
+      '127.0.0.1', 
+      '%'
+    ]
+  }
+}
+
+
+nodes = {
+  db: {
+    'instance_type': 'database',
+    box: 'centos/6',
+    ip: '10.0.1.2',
+    roles: [
+      'mysql_server', 
+      'mysql_databases',
+      'misc'
+    ],
+    'shell_scripts': [], 
+    'ports_pains': [
+      { 
+        'guest': '3306', 
+        'host':  '3306'
+      },
+      { 
+        'guest': '3307', 
+        'host':  '3307'
+      }
+    ]
+  },
+  tomcat: {
+    instance_type: 'backend',
+    box: 'centos/6',
+    ip: '10.0.1.3',
+    roles: [
+      'misc',
+      'petclinic_pre_configure'
+    ],
+    'shell_scripts_pre_chef': [
+      {
+        'inline': 'echo PRE_CHEF_TEST_SCRIPT'
+      }
+    ],  
+    'shell_scripts_post_chef': [
+      {
+        'inline': 'whoami;  id; pwd'
+      },
+      {
+        'path': '01_add_maven_repo_and_install_maven.sh' 
+      },
+      {
+        'path': '02_build_and_install_or_update_tomcat.sh' 
+      },
+      {
+        'path': '03_build_and_deploy_petclinic.sh'
+      }      
+    ],
+    'port_pars': [
+      {
+        'guest': '8080',
+        'host':  '8080',
+      }
+    ]
+  },
+  apache: {
+    instance_type: 'frontend',
+    box: 'centos/6',
+    ip: '10.0.1.4',
+    roles: [
+      'misc',
+      'frontend'
+    ],
+    'shell_scripts_pre_chef': [
+      {
+        'inline': 'echo PRE_CHEF_TEST_SCRIPT_APACHE'
+      }
+    ],  
+    'shell_scripts_post_chef': [],
+    'port_pars': [
+      {
+        'guest': '80',
+        'host':  '80',
+      }
+    ]
+  }
+}
+
+
+app_config = {
+  tomcat: {
+    user:  'tomcat',
+    group: 'tomcat',
+    app:   'petclinic',
+    chef_json: {
+      misc: {
+        packages_to_install: [
+          'mc', 
+          'telnet',
+          'traceroute',
+          'git',
+          'ant',
+          'redhat-lsb-core', 
+          'java-1.8.0-openjdk-debug',
+          'java-1.8.0-openjdk-src-debug',
+          'java-1.8.0-openjdk-javadoc-debug',
+          'java-1.8.0-openjdk-headless',
+          'java-1.8.0-openjdk-headless-debug',
+          'java-1.8.0-openjdk-devel-debug',
+          'java-1.8.0-openjdk-demo-debug',
+          'java-1.8.0-openjdk-demo',
+          'java-1.8.0-openjdk-javadoc',
+          'java-1.8.0-openjdk',
+          'java-1.8.0-openjdk-devel',
+          'java-1.8.0-openjdk-src',
+          'rpmdevtools'
+        ],
+      },
+      database_creds: sql_databases[:petclinic],
+      database_host: nodes[:db][:ip]
+    }
+  },
+  db: {
+    chef_json: {
+      mysql_server:
+      {
+        root_password:   sql_root_credentials[:password],
+        bind_address:    '0.0.0.0',
+        bind_port:       '3306',
+        data_dir:        '/var/lib/mysql'
+      },
+      mysql_databases: sql_databases,
+      mysql_root_connection: sql_root_credentials,
+      misc: {
+        packages_to_install: [
+          'mc', 
+          'telnet',
+          'traceroute',
+          'git'
+        ]
+      }
+    }
+  },
+  apache: {
+    chef_json: {
+      frontend: {
+        backends:[]
+      },
+      misc: {
+        packages_to_install: [
+          'mc', 
+          'telnet',
+          'traceroute',
+          'git',
+          'httpd'
+        ]
+      }
+    }
+  }
+}
+
+nodes.each do |nodename, nodedata|
+  if nodedata[:instance_type] == 'backend'
+    app_config[:apache][:chef_json][:frontend][:backends].push(nodedata[:ip])
+  end
+end
+
+puts(app_config[:apache])
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos/6"
+
+  nodes.each do |nodename, nodedata|
+    puts(nodename)
+    current_config = app_config[:"#{nodename}"]
+    puts(current_config)
+    config.vm.define nodename do |current_node|
+
+
+      current_node.vm.network 'private_network', ip: nodedata[:ip]
+      current_node.vm.provision :hosts, :sync_hosts => true
+
+        
+      if nodedata[:ports_pains].respond_to?('each')
+        nodedata[:ports_pains].each do |port_pair| 
+          current_node.vm.network "forwarded_port", guest: port_pair[:guest], host: port_pair[:host]
+        end
+      end      
+              
+      if nodedata[:shell_scripts_pre_chef].respond_to?('each')
+        nodedata[:shell_scripts_pre_chef].each do |shell_script|
+          puts(shell_script)
+          shell_script.each do |method, script_code| 
+            current_node.vm.provision "shell", "#{method}": script_code
+          end
+        end
+      end
+        
+      current_node.vm.provision "chef_solo" do |chef|
+        chef.cookbooks_path = ["cookbooks", "site-cookbooks"]
+        chef.roles_path = ["roles"]
+          
+        nodedata[:roles].each do |current_role|
+          chef.add_role(current_role)
+          chef.json = current_config[:chef_json]
+        end    
+      end
+
+      if nodedata[:shell_scripts_post_chef].respond_to?('each')
+        nodedata[:shell_scripts_post_chef].each do |shell_script|
+          puts(shell_script)
+          shell_script.each do |method, script_code| 
+            current_node.vm.provision "shell", "#{method}": script_code
+          end
+        end
+      end 
+    end
+  end
+end
+
+
+
+
+
+
+#
+#  config.vm.define "apache" do |apache|
+#    apache.vm.network "forwarded_port", guest: 80, host: 8090
+#    apache.vm.provision "chef_solo" do |chef|
+#      chef.cookbooks_path =  ["cookbooks", "site-cookbooks"]
+#      chef.add_recipe "apache2"
+#      chef.json = {
+#        "apache" => {
+#          "listen_address" => "0.0.0.0"
+#        },
+#        "run_list": [ 
+#          "recipe[apache2]",
+#          "recipe[misc]"
+#        ]
+#      }    
+#    end  
+#  end
+#
+#
+#
+#  config.vm.define "tomcat" do |tomcat|
+#    tomcat.vm.network "forwarded_port", guest: 8080, host: 8091
+#    tomcat.vm.provision "chef_solo" do |chef|
+#      chef.cookbooks_path =  ["cookbooks", "site-cookbooks"]
+#      chef.json = {
+#        "install_tomcat" => {
+#          "listen_address" => "0.0.0.0"
+#        },
+#        "run_list": [ 
+#          "recipe[install_tomcat]",
+#          "recipe[misc]"
+#        ]
+#      }    
+#    end  
+#  end
+#
+
+#end
