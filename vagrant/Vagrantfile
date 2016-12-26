@@ -9,9 +9,7 @@ sql_databases = {
     name: 'petclinic',
     username: 'petclinic',
     password: 'petclinic',
-    allowed_hosts: [ 
-      '127.0.0.1', 
-      '10.0.1.3'
+    allowed_hosts: [
     ]
   },
   other_petclinic: {
@@ -48,7 +46,7 @@ nodes = {
       }
     ]
   },
-  tomcat: {
+  tomcat1: {
     instance_type: 'backend',
     box: 'centos/6',
     ip: '10.0.1.3',
@@ -82,10 +80,38 @@ nodes = {
       }
     ]
   },
+  tomcat2: {
+    instance_type: 'backend',
+    box: 'centos/6',
+    ip: '10.0.1.4',
+    roles: [
+      'misc',
+      'petclinic_pre_configure'
+    ],
+    'shell_scripts_pre_chef': [
+      {
+        'inline': 'echo PRE_CHEF_TEST_SCRIPT'
+      }
+    ],  
+    'shell_scripts_post_chef': [
+      {
+        'inline': 'whoami;  id; pwd'
+      },
+      {
+        'path': '01_add_maven_repo_and_install_maven.sh' 
+      },
+      {
+        'path': '02_build_and_install_or_update_tomcat.sh' 
+      },
+      {
+        'path': '03_build_and_deploy_petclinic.sh'
+      }      
+    ]
+  },
   apache: {
     instance_type: 'frontend',
     box: 'centos/6',
-    ip: '10.0.1.4',
+    ip: '10.0.1.5',
     roles: [
       'misc',
       'frontend'
@@ -106,11 +132,44 @@ nodes = {
 }
 
 
+nodes.each do |nodename, nodedata|
+  if nodedata[:instance_type] == 'backend'
+    sql_databases[:petclinic][:allowed_hosts].push(nodedata[:ip])
+  end
+end
+
+
 app_config = {
-  tomcat: {
-    user:  'tomcat',
-    group: 'tomcat',
-    app:   'petclinic',
+  tomcat1: {
+    chef_json: {
+      misc: {
+        packages_to_install: [
+          'mc', 
+          'telnet',
+          'traceroute',
+          'git',
+          'ant',
+          'redhat-lsb-core', 
+          'java-1.8.0-openjdk-debug',
+          'java-1.8.0-openjdk-src-debug',
+          'java-1.8.0-openjdk-javadoc-debug',
+          'java-1.8.0-openjdk-headless',
+          'java-1.8.0-openjdk-headless-debug',
+          'java-1.8.0-openjdk-devel-debug',
+          'java-1.8.0-openjdk-demo-debug',
+          'java-1.8.0-openjdk-demo',
+          'java-1.8.0-openjdk-javadoc',
+          'java-1.8.0-openjdk',
+          'java-1.8.0-openjdk-devel',
+          'java-1.8.0-openjdk-src',
+          'rpmdevtools'
+        ],
+      },
+      database_creds: sql_databases[:petclinic],
+      database_host: nodes[:db][:ip]
+    }
+  },
+  tomcat2: {
     chef_json: {
       misc: {
         packages_to_install: [
@@ -163,15 +222,45 @@ app_config = {
   apache: {
     chef_json: {
       frontend: {
-        backends:[]
-      },
+        backends:[],
+        apache_modules: [
+          "expires",
+          "deflate",
+          "headers",
+          "usertrack",
+          "setenvif",
+          "mime",
+          "dav",
+          "status",
+          "autoindex",
+          "info",
+          "vhost_alias",
+          "negotiation",
+          "dir",
+          "speling",
+          "userdir",
+          "alias",
+          "substitute",
+          "rewrite",
+          "proxy",
+          "proxy_balancer",
+          "proxy_ftp",
+          "proxy_http",
+          "proxy_ajp",
+          "proxy_connect",
+          "cache",
+          "suexec",
+          "disk_cache",
+          "cgi",
+          "version"
+       ]
+     },
       misc: {
         packages_to_install: [
           'mc', 
           'telnet',
           'traceroute',
-          'git',
-          'httpd'
+          'git'
         ]
       }
     }
@@ -183,6 +272,7 @@ nodes.each do |nodename, nodedata|
     app_config[:apache][:chef_json][:frontend][:backends].push(nodedata[:ip])
   end
 end
+
 
 puts(app_config[:apache])
 

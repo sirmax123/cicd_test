@@ -6,6 +6,8 @@
   },
   "description": "frontend",
   "run_list": [
+      "recipe[selinux::permissive]",
+      "recipe[apache2]",
       "recipe[frontend]"
   ]
 }
