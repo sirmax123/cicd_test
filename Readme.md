@@ -156,9 +156,8 @@ app_config = {
 ```
 All nodes marked as `instance_type: 'backend'` will be added to frontend load balancer.
 #### Check deployment
-By-default apache is configured on ip   and port 80
-You can check PetClinic installation with you faivorite browser or with `curl` 
-(for default apache ip 10.0.1.5)
+By-default apache is configured on ip 10.0.1.5 and port 80
+You can check PetClinic installation with you faivorite browser or with `curl`  cli tool
 
 ```
 curl http://10.0.1.5/petclinic/owners.html?lastName=
