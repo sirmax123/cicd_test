@@ -65,7 +65,7 @@ For demo reason will be created 2 MySQL databases (First is used for Petclinic, 
 You can create any number of backend instances, just configure additional nodes in  `nodes = { ... }` and section in `app_config = { ... }`
 
 
-e.g you can add tomcat3:
+e.g you can add tomcat3, with correct ip (see `tomcat3[:ip]`):
 ```
 nodes = {
   db: {
@@ -80,7 +80,7 @@ nodes = {
   tomcat3: {
     instance_type: 'backend',
     box: 'centos/6',
-    ip: '10.0.1.3',
+    ip: 'FIX_IP_HERE',
     roles: [
       'misc',
       'petclinic_pre_configure'
@@ -152,7 +152,7 @@ app_config = {
   },
   ...
 ```
-
+All nodes 
 
 
 
