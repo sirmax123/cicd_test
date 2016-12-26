@@ -1,21 +1,21 @@
 # CICD test task
 
-STAGE 1.
+## STAGE 1.
 Create infrastructure for Petclinic application using local Vagrant/Chef.
 Infrastructure should consist of one MySQL, one Tomcat, one Apache nodes.
 
-STAGE 2.
+## STAGE 2.
 Create release infrastructure using local Vagrant/Chef.
 Repository in GitLab as well as base jobs in Jenkins should be pre-created.
 Sources must be pushed manually to pre-created repository.
 
-STAGE 3.
+## STAGE 3.
 Migrate both infrastructures to Tonomi/AWS.
 
-STAGE 4.1.
+## STAGE 4.1.
 Make application infrastructure more universal, creating independent components which are driven by external commands.
 
-STAGE 4.2.
+## STAGE 4.2.
 Add reconfiguration capabilities to application environment, by dynamically reacting on artifact changes and number of application nodes changes.
 
 
@@ -152,13 +152,14 @@ app_config = {
   },
   ...
 ```
-All nodes 
-
+All nodes marked as `instance_type: 'backend'` will be added to frontend load balancer.
 
 
 ### Stage2
+In progress
 
 ### Stage3
+Not implemented
 
 ### Stage4
-
+Not implemented
