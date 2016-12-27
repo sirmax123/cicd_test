@@ -46,6 +46,13 @@ cd cicd_test
 ## Running
 
 ### Stage1
+#### Run application
+
+Befor you start, please pay your attention: running  env will take a long 
+time because petclinic and tomcat server will be build from source code as 
+many times as many backends configured in Vagrantfile
+
+It is done in this way because there are no artifact storage in this configuration. 
 
 Check Vagrantfile and configure your own IP addreses for nodes if you need it.
 By-default will be deployed 4 nodes
@@ -103,13 +110,8 @@ nodes = {
       {
         'path': '03_build_and_deploy_petclinic.sh'
       }      
-    ],
-    'port_pars': [
-      {
-        'guest': '8080',
-        'host':  '8080',
-      }
     ]
+    ... 
   },
 ```
 
@@ -153,7 +155,13 @@ app_config = {
   ...
 ```
 All nodes marked as `instance_type: 'backend'` will be added to frontend load balancer.
+#### Check deployment
+By-default apache is configured on ip 10.0.1.5 and port 80
+You can check PetClinic installation with you faivorite browser or with `curl`  cli tool
 
+```
+curl http://10.0.1.5/petclinic/owners.html?lastName=
+```
 
 ### Stage2
 In progress
