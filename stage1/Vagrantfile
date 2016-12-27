@@ -24,6 +24,31 @@ sql_databases = {
 }
 
 
+backend_roles_list = [
+      'misc',
+      'oracle_java',
+      'petclinic_pre_configure'
+]
+backend_shell_scripts_pre_chef = [
+  {
+        'inline': 'echo PRE_CHEF_TEST_SCRIPT'
+  }
+]
+backend_shell_scripts_post_chef = [
+  {
+    'inline': 'whoami;  id; pwd'
+  },
+  {
+    'path': '01_add_maven_repo_and_install_maven.sh' 
+  },
+  {
+    'path': '02_build_and_install_or_update_tomcat.sh' 
+  },
+  {
+    'path': '03_build_and_deploy_petclinic.sh'
+  } 
+]
+
 nodes = {
   db: {
     'instance_type': 'database',
@@ -50,63 +75,19 @@ nodes = {
     instance_type: 'backend',
     box: 'centos/6',
     ip: '10.0.1.3',
-    roles: [
-      'misc',
-      'petclinic_pre_configure'
-    ],
-    'shell_scripts_pre_chef': [
-      {
-        'inline': 'echo PRE_CHEF_TEST_SCRIPT'
-      }
-    ],  
-    'shell_scripts_post_chef': [
-      {
-        'inline': 'whoami;  id; pwd'
-      },
-      {
-        'path': '01_add_maven_repo_and_install_maven.sh' 
-      },
-      {
-        'path': '02_build_and_install_or_update_tomcat.sh' 
-      },
-      {
-        'path': '03_build_and_deploy_petclinic.sh'
-      }      
-    ],
-    'port_pars': [
-      {
-        'guest': '8080',
-        'host':  '8080',
-      }
-    ]
+    roles: backend_roles_list,
+    'shell_scripts_pre_chef': backend_shell_scripts_pre_chef,
+    'shell_scripts_post_chef': backend_shell_scripts_post_chef,
+    'port_pairs': []
   },
   tomcat2: {
     instance_type: 'backend',
     box: 'centos/6',
     ip: '10.0.1.4',
-    roles: [
-      'misc',
-      'petclinic_pre_configure'
-    ],
-    'shell_scripts_pre_chef': [
-      {
-        'inline': 'echo PRE_CHEF_TEST_SCRIPT'
-      }
-    ],  
-    'shell_scripts_post_chef': [
-      {
-        'inline': 'whoami;  id; pwd'
-      },
-      {
-        'path': '01_add_maven_repo_and_install_maven.sh' 
-      },
-      {
-        'path': '02_build_and_install_or_update_tomcat.sh' 
-      },
-      {
-        'path': '03_build_and_deploy_petclinic.sh'
-      }      
-    ]
+    roles: backend_roles_list,
+    'shell_scripts_pre_chef': backend_shell_scripts_pre_chef,
+    'shell_scripts_post_chef': backend_shell_scripts_post_chef,
+    'port_pairs': []
   },
   apache: {
     instance_type: 'frontend',
@@ -114,8 +95,7 @@ nodes = {
     ip: '10.0.1.5',
     roles: [
       'misc',
-      'frontend',
-      'oracle_java'
+      'frontend'
     ],
     'shell_scripts_pre_chef': [
       {
@@ -149,20 +129,7 @@ app_config = {
           'telnet',
           'traceroute',
           'git',
-          'ant',
           'redhat-lsb-core', 
-          'java-1.8.0-openjdk-debug',
-          'java-1.8.0-openjdk-src-debug',
-          'java-1.8.0-openjdk-javadoc-debug',
-          'java-1.8.0-openjdk-headless',
-          'java-1.8.0-openjdk-headless-debug',
-          'java-1.8.0-openjdk-devel-debug',
-          'java-1.8.0-openjdk-demo-debug',
-          'java-1.8.0-openjdk-demo',
-          'java-1.8.0-openjdk-javadoc',
-          'java-1.8.0-openjdk',
-          'java-1.8.0-openjdk-devel',
-          'java-1.8.0-openjdk-src',
           'rpmdevtools'
         ],
       },
@@ -178,20 +145,7 @@ app_config = {
           'telnet',
           'traceroute',
           'git',
-          'ant',
           'redhat-lsb-core', 
-          'java-1.8.0-openjdk-debug',
-          'java-1.8.0-openjdk-src-debug',
-          'java-1.8.0-openjdk-javadoc-debug',
-          'java-1.8.0-openjdk-headless',
-          'java-1.8.0-openjdk-headless-debug',
-          'java-1.8.0-openjdk-devel-debug',
-          'java-1.8.0-openjdk-demo-debug',
-          'java-1.8.0-openjdk-demo',
-          'java-1.8.0-openjdk-javadoc',
-          'java-1.8.0-openjdk',
-          'java-1.8.0-openjdk-devel',
-          'java-1.8.0-openjdk-src',
           'rpmdevtools'
         ],
       },
