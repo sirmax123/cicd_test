@@ -28,6 +28,7 @@ jenkins_shell_scripts_post_chef = [
 ########
 
 gitlab_roles_list = [
+  'misc',
   'gitlab'
 ]
 gitlab_shell_scripts_pre_chef = []
@@ -84,62 +85,10 @@ app_config = {
       }
     }
   },
-  apache: {
-    chef_json: {
-      frontend: {
-        backends:[],
-        apache_modules: [
-          "expires",
-          "deflate",
-          "headers",
-          "usertrack",
-          "setenvif",
-          "mime",
-          "dav",
-          "status",
-          "autoindex",
-          "info",
-          "vhost_alias",
-          "negotiation",
-          "dir",
-          "speling",
-          "userdir",
-          "alias",
-          "substitute",
-          "rewrite",
-          "proxy",
-          "proxy_balancer",
-          "proxy_ftp",
-          "proxy_http",
-          "proxy_ajp",
-          "proxy_connect",
-          "cache",
-          "suexec",
-          "disk_cache",
-          "cgi",
-          "version"
-       ]
-     },
-      misc: {
-        packages_to_install: [
-          'mc', 
-          'telnet',
-          'traceroute',
-          'git'
-        ]
-      }
-    }
-  }
 }
 
-nodes.each do |nodename, nodedata|
-  if nodedata[:instance_type] == 'backend'
-    app_config[:apache][:chef_json][:frontend][:backends].push(nodedata[:ip])
-  end
-end
 
 
-puts(app_config[:apache])
 
 Vagrant.configure("2") do |config|
   config.vm.box = "centos/6"

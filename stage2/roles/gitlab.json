@@ -6,7 +6,7 @@
   },
   "description": "gitlab",
   "run_list": [
-      "recipe[selinux::permissive]"
+      "recipe[selinux::permissive]",
       "recipe[simple_gitlab]"
   ]
 }
