@@ -1,22 +1,3 @@
-log 'message' do
-  message "#{node}"
-  level :info
-end
-
-
-log 'message' do
-  message "======123======="
-  level :info
-end
-
-
-
-log 'message' do
-  message "#{node['database_host']}"
-  level :info
-end
-
-
 template '/tmp/data-access.properties' do
   source '/data-access.properties.erb'
   mode '0440'

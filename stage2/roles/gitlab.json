@@ -1,0 +1,12 @@
+{
+  "name": "gitlab",
+  "chef_type": "role",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+  },
+  "description": "gitlab",
+  "run_list": [
+      "recipe[selinux::permissive]"
+      "recipe[simple_gitlab]"
+  ]
+}
