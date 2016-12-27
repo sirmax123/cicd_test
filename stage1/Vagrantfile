@@ -114,7 +114,8 @@ nodes = {
     ip: '10.0.1.5',
     roles: [
       'misc',
-      'frontend'
+      'frontend',
+      'oracle_java'
     ],
     'shell_scripts_pre_chef': [
       {
