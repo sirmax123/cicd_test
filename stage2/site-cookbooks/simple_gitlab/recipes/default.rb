@@ -1,36 +1,43 @@
+deps = [
+  "rpm-build",
+  "rpmdevtools",
+  "readline-devel",
+  "ncurses-devel",
+  "gdbm-devel",
+  "tcl-devel",
+  "openssl-devel",
+  "db4-devel",
+  "byacc",
+  "libyaml-devel",
+  "libffi-devel",
+  "make"
+]
+
 log 'message' do
   message "#{node}"
   level :info
 end
 
 
-#remote_file '/var/www/customers/public_html/index.php' do
-#  source 'http://somesite.com/index.php'
-#  action :create
-#end
+deps.each do |p|
+  package p do
+    action :install
+  end
+end
+
+cookbook_file '/root/build_and_install_ruby_1_9_3.sh' do
+  source 'build_and_install_ruby_1_9_3.sh'
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+end
 
 
-#[gitlab_gitlab-ce]
-#name=gitlab_gitlab-ce
-#baseurl=https://packages.gitlab.com/gitlab/gitlab-ce/el/6/$basearch
-#repo_gpgcheck=1
-#gpgcheck=0
-#enabled=1
-#gpgkey=https://packages.gitlab.com/gitlab/gitlab-ce/gpgkey
-#sslverify=1
-#sslcacert=/etc/pki/tls/certs/ca-bundle.crt
-#metadata_expire=300
+execute 'build_ruby' do
+  command '/root/build_and_install_ruby_1_9_3.sh'
+end
 
-#[gitlab_gitlab-ce-source]
-#name=gitlab_gitlab-ce-source
-#baseurl=https://packages.gitlab.com/gitlab/gitlab-ce/el/6/SRPMS
-#repo_gpgcheck=1
-#gpgcheck=0
-#enabled=1
-#gpgkey=https://packages.gitlab.com/gitlab/gitlab-ce/gpgkey
-#sslverify=1
-#sslcacert=/etc/pki/tls/certs/ca-bundle.crt
-#metadata_expire=300
 
 
 yum_repository 'gitlab_gitlab-ce' do
@@ -49,4 +56,10 @@ end
 simple_gitlab_cli 'gitlab' do
   root_password 'r00tme123'
   action :configure
+end
+
+
+
+gem_package 'gitlab' do
+   action :install
 end

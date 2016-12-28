@@ -49,13 +49,17 @@ default_packages_to_install = [
 
 nodes = {
   jenkins: {
-    'instance_type': 'jenkins',
+    cpus: '1',
+    memory: '1024',
+    instance_type: 'jenkins',
     box: 'centos/6',
     ip: '10.0.1.10',
     roles: jenkins_roles_list,
     'shell_scripts': [], 
   },
   gitlab: {
+    cpus: '2',
+    memory: '2048',
     instance_type: 'gitlab',
     box: 'centos/6',
     ip: '10.0.1.11',
@@ -103,7 +107,15 @@ Vagrant.configure("2") do |config|
       current_node.vm.network 'private_network', ip: nodedata[:ip]
       current_node.vm.provision :hosts, :sync_hosts => true
 
-        
+      current_node.vm.provider 'virtualbox' do |v|
+        if defined?(nodedata[:memory])
+          v.memory = nodedata[:memory]
+        end
+        if defined?(nodedata[:cpus])
+          v.cpus = nodedata[:cpus]
+        end
+      end
+
       if nodedata[:ports_pains].respond_to?('each')
         nodedata[:ports_pains].each do |port_pair| 
           current_node.vm.network "forwarded_port", guest: port_pair[:guest], host: port_pair[:host]
