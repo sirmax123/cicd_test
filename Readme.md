@@ -72,7 +72,7 @@ For demo reason will be created 2 MySQL databases (First is used for Petclinic, 
 You can create any number of backend instances, just configure additional nodes in  `nodes = { ... }` and section in `app_config = { ... }`
 
 
-e.g you can add tomcat3, with correct ip (see `tomcat3[:ip]`):
+e.g you can add tomcat3, with correct ip (see `tomcat3[:ip]`): and custom configuration differs from tomcat1 and 2. Or just copy tomcat1 and change ip.
 ```
 nodes = {
   db: {
@@ -127,25 +127,7 @@ app_config = {
     chef_json: {
       misc: {
         packages_to_install: [
-          'mc', 
-          'telnet',
-          'traceroute',
-          'git',
-          'ant',
-          'redhat-lsb-core', 
-          'java-1.8.0-openjdk-debug',
-          'java-1.8.0-openjdk-src-debug',
-          'java-1.8.0-openjdk-javadoc-debug',
-          'java-1.8.0-openjdk-headless',
-          'java-1.8.0-openjdk-headless-debug',
-          'java-1.8.0-openjdk-devel-debug',
-          'java-1.8.0-openjdk-demo-debug',
-          'java-1.8.0-openjdk-demo',
-          'java-1.8.0-openjdk-javadoc',
-          'java-1.8.0-openjdk',
-          'java-1.8.0-openjdk-devel',
-          'java-1.8.0-openjdk-src',
-          'rpmdevtools'
+          ...
         ],
       },
       database_creds: sql_databases[:petclinic],
@@ -162,6 +144,13 @@ You can check PetClinic installation with you faivorite browser or with `curl`  
 ```
 curl http://10.0.1.5/petclinic/owners.html?lastName=
 ```
+#### stage1 know issues
+* used cookbooks from SuperMarket, only wrappers are added
+* need to check dependencies, looks like some unused cookbooks are added
+* vm.cpu and vm.memory configuration are non supported  (added in stage2)
+* add-some-more-issues-here
+
+
 
 ### Stage2
 In progress
