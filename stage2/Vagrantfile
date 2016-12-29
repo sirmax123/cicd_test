@@ -86,6 +86,10 @@ app_config = {
     chef_json: {
       misc: {
         packages_to_install: default_packages_to_install,
+      },
+      gitlab: {
+        external_url: 'http://10.0.1.11',
+        root_password: 'r00tme123'
       }
     }
   },
