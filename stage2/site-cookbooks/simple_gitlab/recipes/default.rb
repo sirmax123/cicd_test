@@ -123,6 +123,16 @@ simple_gitlab_user 'testuser2' do
 end
 
 
+simple_gitlab_group 'testuser2' do
+  group_name        'testgroup'
+  group_path        'testgroup_path'
+  root_username     'root'
+  root_password     "#{node['gitlab']['root_password']}"
+  base_gitlab_url   "#{node['gitlab']['external_url']}"
+  action          :create
+end
+
+
 
 gem_package 'gitlab' do
   action :install
