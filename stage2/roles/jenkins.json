@@ -6,6 +6,7 @@
   },
   "description": "jenkins",
   "run_list": [
-      "recipe[selinux::permissive]"
+      "recipe[selinux::permissive]",
+      "recipe[jenkins::install]"
   ]
 }

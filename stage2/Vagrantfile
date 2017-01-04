@@ -1,7 +1,133 @@
+jenkins_plugins = [
+  "ace-editor",
+  "active-directory",
+  "ansicolor",
+  "ant",
+  "antisamy-markup-formatter",
+  "artifactory",
+  "authentication-tokens",
+  "bitbucket",
+  "bouncycastle-api",
+  "branch-api",
+  "build-flow-extensions-plugin",
+  "build-flow-plugin",
+  "buildgraph-view",
+  "build-timeout",
+  "build-timestamp",
+  "chucknorris",
+  "cloudbees-bitbucket-branch-source",
+  "cloudbees-folder",
+  "conditional-buildstep",
+  "config-file-provider",
+  "copyartifact",
+  "credentials",
+  "credentials-binding",
+  "display-url-api",
+  "docker-commons",
+  "docker-workflow",
+  "durable-task",
+  "email-ext",
+  "envinject",
+  "extended-choice-parameter",
+  "extensible-choice-parameter",
+  "external-monitor-job",
+  "external-workspace-manager",
+  "git",
+  "git-client",
+  "github",
+  "github-api",
+  "github-branch-source",
+  "github-organization-folder",
+  "git-server",
+  "gogs-webhook",
+  "gradle",
+  "groovy",
+  "handlebars",
+  "icon-shim",
+  "ivy",
+  "javadoc",
+  "JDK_Parameter_Plugin",
+  "jenkins-multijob-plugin",
+  "jobConfigHistory",
+  "job-restrictions",
+  "jquery",
+  "jquery-detached",
+  "junit",
+  "ldap",
+  "locale",
+  "mailer",
+  "mapdb-api",
+  "matrix-auth",
+  "matrix-project",
+  "maven-plugin",
+  "mercurial",
+  "momentjs",
+  "next-executions",
+  "nodelabelparameter",
+  "pam-auth",
+  "parameterized-trigger",
+  "pipeline-aggregator-view",
+  "pipeline-build-step",
+  "pipeline-classpath",
+  "pipeline-graph-analysis",
+  "pipeline-input-step",
+  "pipeline-maven",
+  "pipeline-milestone-step",
+  "pipeline-model-api",
+  "pipeline-model-declarative-agent",
+  "pipeline-model-definition",
+  "pipeline-rest-api",
+  "pipeline-stage-step",
+  "pipeline-stage-view",
+  "pipeline-utility-steps",
+  "plain-credentials",
+  "promoted-builds",
+  "purge-build-queue-plugin",
+  "purge-job-history",
+  "resource-disposer",
+  "role-strategy",
+  "run-condition",
+  "run-selector",
+  "scm-api",
+  "scriptler",
+  "script-security",
+  "simple-theme-plugin",
+  "sonar",
+  "ssh-credentials",
+  "ssh-slaves",
+  "structs",
+  "timestamper",
+  "token-macro",
+  "vagrant",
+  "uno-choice",
+  "windows-slaves",
+  "workflow-aggregator",
+  "workflow-api",
+  "workflow-basic-steps",
+  "workflow-cps",
+  "workflow-cps-global-lib",
+  "workflow-durable-task-step",
+  "workflow-job",
+  "workflow-multibranch",
+  "workflow-remote-loader",
+  "workflow-scm-step",
+  "workflow-step-api",
+  "workflow-support",
+  "ws-cleanup"
+]
+
+
+# redefine for debug
+jenkins_plugins = [
+  "ace-editor",
+  "active-directory"
+]
+
 
 jenkins_roles_list = [
   'misc',
   'oracle_java',
+  'jenkins'
 ]
 
 
@@ -24,6 +150,50 @@ jenkins_shell_scripts_post_chef = [
     'path': '03_build_and_deploy_petclinic.sh'
   } 
 ]
+
+
+
+jenkins_public_key = {
+  key: "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA0V39xz6tKyxDtg7psKpxeLm1i/1n/dFIf0wpE9vZtWxcypgupc0p0OvhztcWHUcJ/mUisipsjQb4bdpGbixjA9rhXG4fTeJVRsxd9+NawtDcSyVLfDdZVRfgPmOZS6k/XpmzLksEtXDHVySUWybQjTMO26VwlWVpNRnFUg3LdeMEvny1AgfcbBuhXG/yPPJhcNmz5Ez666eefGRzW74SuwwuKzYdtbmPLMpQ3AolNeJeL7ot6Z3fF4uDVvtxVAcGvlLE9zR3gRcI4Mv2E5rPvgy6pumWDOyRtsFM8phNj+zZWMm8jQCXSL6+W2lxznEnLMaI73IoY5XaraisCOt27w==",
+  key_title:  "root@jenkins"
+}
+
+other_public_key = {
+  key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDg4aSdcFdHrc9s58Hq5xLboig8+RF+AIyrf+vZhK8zmKE1Q9hlI5+s+VPmWbo0dn3540uhHyq8NKCbJLAUvtlPlvAJnE7mFjwIsnQCmeqM0j79ppgTvrWe83IWUrK1vT4GRwCEzvD487dFIMuvx0rV5EKlAN9HckadbpoIF3p1/Dkw9mlRk3+EOTOyr/8gr0u6ppyS6DpLBjX4AwFnlutTafM4IRTJWX4rTSTlmZ5QNORUel/1DZt+baRRgUffZ+QxrCd8hkakMpmUiB8x9IjORCsjP+iRE5jD3oTh9WViv3rxTZkYls8HQD1MPqpqR7OGxATcnNC93M2DgKPL3fZZ",
+  key_title:  "root@nowhere"
+}
+
+
+
+
+jenkins_private_key = """-----BEGIN RSA PRIVATE KEY-----
+MIIEoQIBAAKCAQEA0V39xz6tKyxDtg7psKpxeLm1i/1n/dFIf0wpE9vZtWxcypgu
+pc0p0OvhztcWHUcJ/mUisipsjQb4bdpGbixjA9rhXG4fTeJVRsxd9+NawtDcSyVL
+fDdZVRfgPmOZS6k/XpmzLksEtXDHVySUWybQjTMO26VwlWVpNRnFUg3LdeMEvny1
+AgfcbBuhXG/yPPJhcNmz5Ez666eefGRzW74SuwwuKzYdtbmPLMpQ3AolNeJeL7ot
+6Z3fF4uDVvtxVAcGvlLE9zR3gRcI4Mv2E5rPvgy6pumWDOyRtsFM8phNj+zZWMm8
+jQCXSL6+W2lxznEnLMaI73IoY5XaraisCOt27wIBIwKCAQAX7XwWxVWeiLdIAbRO
+tGS9Vw1vFaV8F+sHO+dv+95d4H+iIAVUxv129mLzEURbHg/FTWMNDCmpt6ddAwC8
+IlR1eBnBa6vOYwJufcGYrETjEI40eUp0mJx+wOZth7m/gQ6Od/c4fZojXVicPrHe
+iBfVn29pj0AREudzyG5ShTvS9Sqq7gQl764Fj4CN/IuqfJ3JbABSiNAYSHScY+1z
+1csQokhqh0Je7phjcGGU4K+iuUXg4DwcfbXLsww6WRn0Ozyjqlpc3oqJgMWIPhSj
+Pe4WXtVPgTBSxt0y3KFf6PQMGcUk8JZiQsg9KBXO6f5oTpkBGJpHw8xnQalPgNxW
+exVLAoGBAPELc9rZBSi9fWujEPHlF5zzlnLUg4ac4P290jTWpTaQ8dH8rvjSZb9o
+BzVKS4QUUR0FTAV4bmlWzrx5NaErn5A3x0T797woXrMGcdqcaq89u+SYdf/B8YNW
+VqoDbOuGaPuV8nc2Zd+DEme2VS2l1i9xc9QxwreEIVKFl/UaJw5nAoGBAN5bZjXd
+EYD99pDe/TpEGF/a0j49nFd6TKRmJ+DPiitYjmKKZ6AkrBpeq8W7EKBRvB26xBp3
+438KXhvfOi0PYSPueOlOoX8lkZVyOubi0j08kwuWyS92rv7jYB7n9QqfomC/niF6
+0l+ujZfSlNIX6zzxu27JvjRX9f6waS76D245AoGBANxiPgnq/WcTpd7A+Yy0Mtik
+McgSwWUht8NruN/aMKbq67isgrebyr2g8KXARQsLQti0YsMsR7DEZT6atLCc6aht
+gv0+JFRCKrJPCQJjH7Yp0Fv5G21+HqP3KqoRwqtzky8qAkEbytr7foq1VTEMppHG
+0Ez6S6B4zgJOQcomihvLAoGAUpb6FAGnamz1Ln6109AmT30phNUOLx7MAoxX9GpX
+5DbVzNRSYA2fAnrvWBJIAQhqcXFBhiyHstf3EaqvNU7a8Ba/MhXkNopMBE7/71uP
+6tv8Gj9SClCnZfyurGTIus2UFU58kBetOXtZKcM+ly10oZudY6oE0Z0DmRzz3j+f
+VNMCgYAln5mCtRGCYyKEdLH59zttFnvA2qGAmikSwpEkfhiMsfQQx0Rz/OhD3mXJ
+51tQ4R1yz6kaoPPIIRVbidvBHl9KvAvwSqQxCpqQeW2xjgsdYOXY36f5rcjz8NQ+
+aeUu0lJq8azIrMNTcqTjiZuJw0xBkbNQy392FQx7WolSnQtVHw==
+-----END RSA PRIVATE KEY-----
+"""
 
 ########
 
@@ -79,6 +249,11 @@ app_config = {
         packages_to_install: default_packages_to_install,
       },
       jenkins: {
+        private_key: jenkins_private_key,
+        plugins: jenkins_plugins,
+        admin_user: 'root',
+        admin_password: 'r00tme',
+        git_url: 'http://' + nodes[:gitlab][:ip]
       }
     }
   },
@@ -88,8 +263,31 @@ app_config = {
         packages_to_install: default_packages_to_install,
       },
       gitlab: {
-        external_url: 'http://10.0.1.11',
-        root_password: 'r00tme123'
+        external_url: 'http://' + nodes[:gitlab][:ip],
+        root_password: 'r00tme123',
+        jenkins_private_key: jenkins_private_key,
+        users: [
+          jenkins: {
+            name: 'jenkins',
+            password: 'jenkins12345678',
+            public_key: jenkins_public_key,
+            email: 'jenkins@domain.tld'
+          },
+          otheruser: {
+            name: 'othername',
+            password: 'somepassword12345678',
+            public_key: other_public_key,
+            email: 'nobody@nodomain.tld'
+          }
+        ],
+        groups: [
+          'cicd'
+        ],
+        projects: [
+          'petclinic',
+          'jjb',
+          'test'
+        ]
       }
     }
   },

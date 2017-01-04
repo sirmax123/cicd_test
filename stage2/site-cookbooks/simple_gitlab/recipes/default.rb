@@ -38,15 +38,15 @@ execute 'build_ruby' do
   command '/root/build_and_install_ruby_1_9_3.sh'
 end
 
-template '/etc/gitlab/gitlab.rb' do
-  source '/gitlab.rb.erb'
-  mode '0600'
-  owner 'root'
-  group 'root'
-  variables({
-    external_url: "#{node['gitlab']['external_url']}",
-  })
-end
+#template '/etc/gitlab/gitlab.rb' do
+#  source '/gitlab.rb.erb'
+#  mode '0600'
+#  owner 'root'
+#  group 'root'
+#  variables({
+#    external_url: "#{node['gitlab']['external_url']}",
+#  })
+#end
 
 
 
@@ -69,6 +69,16 @@ simple_gitlab_root_password 'gitlab_root_password' do
   action :set
 end
 
+
+remote_file "wait AdminServer startup" do
+    path "/tmp/testfile"
+    source "#{node['gitlab']['external_url']}"
+    retries 60
+    retry_delay 10
+    backup false
+end
+
+
 template '/etc/gitlab/gitlab.rb' do
   source '/gitlab.rb.erb'
   mode '0600'
@@ -80,57 +90,86 @@ template '/etc/gitlab/gitlab.rb' do
   notifies :configure, 'simple_gitlab_configure[gitlab]', :immediately
 end
 
-#  do nithing by default, should be callsed by template '/etc/gitlab/gitlab.rb'
+#  do nothing by default, should be callsed by template '/etc/gitlab/gitlab.rb'
 simple_gitlab_configure 'gitlab' do
   action :nothing
 end
 
 
-simple_gitlab_user 'testuser' do
-  username        'testuser'
-  password        'testpassword'
-  name_of_user    'Ivan Ivanoff'
-  email           'ivan@ivanoff.com' 
-  root_username   'root'
-  root_password   "#{node['gitlab']['root_password']}"
-  base_gitlab_url "#{node['gitlab']['external_url']}"
-  ssh_key_title   "mm"
-  ssh_key         "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5EIrDnnxNBQavZcxiaHCzt0tjtfW0nNuFAz9f+fs4dL0/3wTbDCWO1l2tahTlupM8r/Tm4Sq20Gsrndl37zEFoqFZG42m1COuEMBgppl4er0cetlZV0qeKfcKQ0xXlZUE1LMJwQoBqAFl4QJ6g25PSPESJxd3wQ1RUfjvJ9kvW8c4sLHD0MjLAmX+VjFlbqNtM1l3uAIMc17RP4B2u4s2FqoyCjg9IxcGlL364FOWJZdHjFaBJvg1k4zo+WzSA2YtOgFxI0CWHUTIcjLD6d3np534zONNxjxsrUz5MBROPUQYOT9y3m9RDBXJVhdvk7V7lTzFYsrTrsJy+gu0pTCL root@mmaxur-pc"
-  action          :create
+# Workaround to wait while GitLab is up
+remote_file "wait AdminServer startup" do
+  path "/tmp/testfile"
+  source "#{node['gitlab']['external_url']}"
+  retries 60
+  retry_delay 10
+  backup false
 end
 
 
-simple_gitlab_user 'testuser1' do
-  username        'testuser'
-  password        'testpassword'
-  name_of_user    'Ivan Petroff'
-  email           'ivan@ivanoff.com' 
-  root_username   'root'
-  root_password   "#{node['gitlab']['root_password']}"
-  base_gitlab_url "#{node['gitlab']['external_url']}"
-  action          :create
-end
-
-simple_gitlab_user 'testuser2' do
-  username        'testuser2'
-  password        'testpassword'
-  name_of_user    'Ivan Sidoroff'
-  email           'ivan@sidoroff.com' 
-  root_username   'root'
-  root_password   "#{node['gitlab']['root_password']}"
-  base_gitlab_url "#{node['gitlab']['external_url']}"
-  action          :create
+node['gitlab']['groups'].each do |gitlab_group|
+  simple_gitlab_group  gitlab_group  do
+    group_name        gitlab_group
+    group_path        gitlab_group
+    root_username     'root'
+    root_password     "#{node['gitlab']['root_password']}"
+    base_gitlab_url   "#{node['gitlab']['external_url']}"
+    action          :create
+  end
 end
 
 
-simple_gitlab_group 'testuser2' do
-  group_name        'testgroup'
-  group_path        'testgroup_path'
+
+
+node['gitlab']['projects'].each do |gitlab_project|
+  simple_gitlab_project gitlab_project do
+    owner             'cicd'
+    root_username     'root'
+    root_password     "#{node['gitlab']['root_password']}"
+    base_gitlab_url   "#{node['gitlab']['external_url']}"
+    action          :create
+  end
+end
+
+
+users_list = []
+node[:gitlab][:users].each do |current_user|
+  Chef::Log.info(" --- #{current_user}")
+
+  current_user.each do |user_id,user_details|
+    users_list.push(user_id)
+    Chef::Log.info(" --- #{user_id}")
+    Chef::Log.info(" --- #{user_details}")
+    Chef::Log.info(" --- #{users_list}")
+
+
+    simple_gitlab_user user_id  do
+      username        user_id
+      password        user_details['password']
+      name_of_user    user_details['name']
+      email           user_details['email'] 
+      root_username   'root'
+      root_password   "#{node['gitlab']['root_password']}"
+      base_gitlab_url "#{node['gitlab']['external_url']}"
+      ssh_key_title   user_details['public_key']['key_title']
+      ssh_key         user_details['public_key']['key']
+      action          :create
+    end
+  end
+end
+
+simple_gitlab_manage_groups 'groups' do
+  users             users_list
+  groups            node['gitlab']['groups']
+  access_level      50
   root_username     'root'
   root_password     "#{node['gitlab']['root_password']}"
   base_gitlab_url   "#{node['gitlab']['external_url']}"
-  action          :create
+  action          :add_users_to_groups
 end
+
+
+
+
 
 
 
@@ -138,3 +177,50 @@ gem_package 'gitlab' do
   action :install
 end
 
+
+
+directory '/root/.ssh' do
+  owner 'root'
+  group 'root'
+  mode '0600'
+  action :create
+end
+
+template '/root/.ssh/id_rsa' do
+#  content "#{node['gitlab']['jenkins_private_key']}"
+  source '/id_rsa.erb'
+  mode '0600'
+  owner 'root'
+  group 'root'
+  variables({
+    private_key: "#{node['gitlab']['jenkins_private_key']}",
+  })
+
+end
+
+
+template '/tmp/clone_repo_to_new_server.sh' do
+  source '/copy_to_local_repo.sh.erb'
+  mode '0755'
+  owner 'root'
+  group 'root'
+  variables({
+    git_ip: "#{node['ipaddress']}",
+  })
+end
+
+
+template '/root/.ssh/config' do
+  source '/config.erb'
+  mode '0600'
+  owner 'root'
+  group 'root'
+  variables({
+    git_ip: "#{node['ipaddress']}",
+  })
+end
+
+
+execute 'copy_repo' do
+  command '/tmp/clone_repo_to_new_server.sh'
+end

@@ -17,23 +17,6 @@ require 'json'
 require 'uri'
 
 
-
-
-def search_group()
-  url = base_gitlab_url + '/api/v3/users/'
-  res = get_request(url, $headers)
-
-  match_users = []
-
-  JSON.parse(res.body).each do |user|
-    if user['username'] == username or user['email'] == email
-      match_users.push(user)
-    end
-  end 
-  return match_users
-end
-
-
 def update_group()
    # not implemented
 end
