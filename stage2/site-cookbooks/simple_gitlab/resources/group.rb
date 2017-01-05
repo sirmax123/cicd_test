@@ -47,24 +47,21 @@ end
 
 
 action :create do
-
-  # a mix of built-in Chef resources and Ruby
   puts("action create")
-  
   $groups_url = '/api/v3/groups/'
 
   $headers = {
     'PRIVATE-TOKEN' => get_token(),
     'Content-Type'  => 'application/json'
   }
-
+  puts('Headers:')
+  puts($headers)
 
   create_group_result = create_group()
   puts(create_group_result)
 end
 
 action :delete do
-    # a mix of built-in Chef resources and Ruby
     puts("action delete is not implemented yet")
 end
 

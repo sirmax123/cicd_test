@@ -118,10 +118,10 @@ jenkins_plugins = [
 
 
 # redefine for debug
-jenkins_plugins = [
-  "ace-editor",
-  "active-directory"
-]
+#jenkins_plugins = [
+#  "ace-editor",
+#  "active-directory"
+#]
 
 
 jenkins_roles_list = [
@@ -204,6 +204,16 @@ gitlab_roles_list = [
 gitlab_shell_scripts_pre_chef = []
 gitlab_shell_scripts_post_chef = []
 
+
+nexus_roles_list = [
+  'misc'
+
+]
+nexus_shell_scripts_pre_chef = []
+nexus_shell_scripts_post_chef = []
+
+
+
 ########
 
 
@@ -236,6 +246,17 @@ nodes = {
     roles: gitlab_roles_list,
     'shell_scripts_pre_chef': gitlab_shell_scripts_pre_chef,
     'shell_scripts_post_chef': gitlab_shell_scripts_post_chef,
+    'port_pairs': []
+  },
+  nexus: {
+    cpus: '2',
+    memory: '2048',
+    instance_type: 'nexus',
+    box: 'centos/6',
+    ip: '10.0.1.12',
+    roles: nexus_roles_list,
+    'shell_scripts_pre_chef': nexus_shell_scripts_pre_chef,
+    'shell_scripts_post_chef': nexus_shell_scripts_post_chef,
     'port_pairs': []
   }
 }
@@ -339,7 +360,11 @@ Vagrant.configure("2") do |config|
           
         nodedata[:roles].each do |current_role|
           chef.add_role(current_role)
-          chef.json = current_config[:chef_json]
+          if (! current_config.nil? ) && ( current_config.has_key? :chef_json)
+            chef.json = current_config[:chef_json]
+          else
+            chef.json = {}
+          end
         end    
       end
 

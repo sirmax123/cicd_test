@@ -25,18 +25,18 @@ deps.each do |p|
   end
 end
 
-cookbook_file '/root/build_and_install_ruby_1_9_3.sh' do
-  source 'build_and_install_ruby_1_9_3.sh'
-  owner 'root'
-  group 'root'
-  mode '0755'
-  action :create
-end
-
-
-execute 'build_ruby' do
-  command '/root/build_and_install_ruby_1_9_3.sh'
-end
+#cookbook_file '/root/build_and_install_ruby_1_9_3.sh' do
+#  source 'build_and_install_ruby_1_9_3.sh'
+#  owner 'root'
+#  group 'root'
+#  mode '0755'
+#  action :create
+#end
+#
+#
+#execute 'build_ruby' do
+#  command '/root/build_and_install_ruby_1_9_3.sh'
+#end
 
 #template '/etc/gitlab/gitlab.rb' do
 #  source '/gitlab.rb.erb'
@@ -64,19 +64,15 @@ package "gitlab-ce" do
   action :install
 end
 
-simple_gitlab_root_password 'gitlab_root_password' do
-  root_password "#{node['gitlab']['root_password']}"
-  action :set
-end
 
 
-remote_file "wait AdminServer startup" do
-    path "/tmp/testfile"
-    source "#{node['gitlab']['external_url']}"
-    retries 60
-    retry_delay 10
-    backup false
-end
+#remote_file "wait AdminServer startup" do
+#    path "/tmp/testfile"
+#    source "#{node['gitlab']['external_url']}"
+#    retries 60
+#    retry_delay 10
+#    backup false
+#end
 
 
 template '/etc/gitlab/gitlab.rb' do
@@ -96,6 +92,7 @@ simple_gitlab_configure 'gitlab' do
 end
 
 
+
 # Workaround to wait while GitLab is up
 remote_file "wait AdminServer startup" do
   path "/tmp/testfile"
@@ -103,6 +100,11 @@ remote_file "wait AdminServer startup" do
   retries 60
   retry_delay 10
   backup false
+end
+
+simple_gitlab_root_password 'gitlab_root_password' do
+  root_password "#{node['gitlab']['root_password']}"
+  action :set
 end
 
 

@@ -7,11 +7,6 @@ property :password, String, default: ""
 property :description, String, default: ""
 property :private_key, String
 
-
-
-
-
-
 action :create do
   groovy_code_lib = get_lib()
   jenkins_action = """

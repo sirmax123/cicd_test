@@ -4,8 +4,6 @@ property :jenkins_url, String, default: 'http://127.0.0.1:8080/'
 
 
 action :enable do
-
-
   groovy_code =   """
   echo '
   import jenkins.model.*
@@ -19,7 +17,8 @@ action :enable do
   instance.save()
   '  """
   
-  jenkins_cli = "java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s #{jenkins_url} groovy = --username=#{admin_user} --password=#{admin_password}"
+#  jenkins_cli = get_jenkins_cli() + " -s #{jenkins_url} groovy = --username=#{admin_user} --password=#{admin_password}"
+  jenkins_cli = get_jenkins_cli() + " -s #{jenkins_url} groovy = "
 
   cmd = "#{groovy_code} | #{jenkins_cli}"
   puts(cmd)
