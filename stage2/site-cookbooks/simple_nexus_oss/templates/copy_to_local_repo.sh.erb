@@ -1,0 +1,22 @@
+#!/bin/bash -x
+
+export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+
+
+TMP=`mktemp -d`
+cd ${TMP}
+git clone "https://github.com/CloudBees-community/spring-petclinic.git"
+cd spring-petclinic
+rm -rf .git
+
+cd ${TMP}
+
+git clone git@<%= @git_ip %>:cicd/petclinic.git
+cp -r  ${TMP}/spring-petclinic/*  ${TMP}/petclinic/
+cd petclinic
+git add -A
+git commit -m 'init'
+git push origin master
+
+#rm -rf ${TMP}
+

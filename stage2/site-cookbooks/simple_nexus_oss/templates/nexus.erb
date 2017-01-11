@@ -1,0 +1,65 @@
+#! /bin/bash
+
+# chkconfig: 2345 20 80
+
+
+NEXUS_HOME="/usr/local/nexus"
+NEXUS_VERSION='2.13.0-01'
+RUN_AS_USER=nexus
+
+APP_NAME="nexus"
+APP_LONG_NAME="Nexus OSS"
+
+
+cd ${NEXUS_HOME}
+
+start() {
+    cd "nexus"-${NEXUS_VERSION}"/bin"
+    sudo -u  ${RUN_AS_USER} ./nexus start
+
+}
+ 
+stopit() {
+    cd "nexus"-${NEXUS_VERSION}"/bin"
+    sudo -u ${RUN_AS_USER=nexus} ./nexus stop
+}
+
+status() {
+    echo 
+}
+
+dump() {
+    echo
+}
+
+case "$1" in
+
+
+    'start')
+        start
+        ;;
+
+    'stop')
+        stopit
+        ;;
+
+    'restart')
+        stopit
+        start
+        ;;
+
+    'status')
+        status
+        ;;
+
+    'dump')
+        dump
+        ;;
+
+    *)
+        echo "Usage: $0 { console | start | stop | restart | status | dump }"
+        exit 1
+        ;;
+esac
+
+exit 0

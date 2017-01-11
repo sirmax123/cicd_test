@@ -206,7 +206,10 @@ gitlab_shell_scripts_post_chef = []
 
 
 nexus_roles_list = [
-  'misc'
+  'misc',
+  'oracle_java',
+  'nexus'
+
 
 ]
 nexus_shell_scripts_pre_chef = []

@@ -40,6 +40,18 @@ jenkins_credentials 'jenkins_main_ssh_key' do
 end
 
 
+
+jenkins_credentials 'nexus_user' do
+  admin_user     node['jenkins']['admin_user']
+  admin_password node['jenkins']['admin_password']
+  username       node['jenkins']['nexus_user']['username']
+  password       node['jenkins']['nexus_user']['password']
+  description    'nexus_user'
+  action         :create
+end
+
+
+
 node['jenkins']['plugins'].each do |jenkins_plugin|
   puts(jenkins_plugin)
   jenkins_plugin "#{jenkins_plugin}" do

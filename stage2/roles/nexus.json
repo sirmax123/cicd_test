@@ -1,0 +1,12 @@
+{
+  "name": "nexus",
+  "chef_type": "role",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+  },
+  "description": "nexus",
+  "run_list": [
+      "recipe[selinux::permissive]",
+      "recipe[simple_nexus_oss]"
+  ]
+}
