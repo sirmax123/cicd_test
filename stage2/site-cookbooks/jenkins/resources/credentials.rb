@@ -5,7 +5,7 @@ property :jenkins_url, String, default: 'http://127.0.0.1:8080/'
 property :username, String
 property :password, String, default: ""
 property :description, String, default: ""
-property :private_key, String
+property :private_key, String, default: ""
 
 action :create do
   groovy_code_lib = get_lib()
@@ -20,6 +20,8 @@ action :create do
     
     #{jenkins_action}
   \"  """
+  
+  puts(groovy_code)
   
   jenkins_cli = get_jenkins_cli() + " -s #{jenkins_url} groovy = --username=#{admin_user} --password=#{admin_password}"
 

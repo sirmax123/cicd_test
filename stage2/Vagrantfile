@@ -230,6 +230,27 @@ default_packages_to_install = [
 ]
 
 
+nexus_data = {
+  users: [
+    jenkins: {
+      password: 'jenkins'
+    },
+    jenkins2: {
+      password: 'jenkins2'
+    },
+    chucknorris: {
+      password: 'chucknorris'
+    }
+  ],
+  repos: [
+    'petclinic',
+    'petclinic2',
+    'chucknorris'
+  ]
+
+}
+
+
 nodes = {
   jenkins: {
     cpus: '1',
@@ -267,6 +288,11 @@ nodes = {
 
 
 app_config = {
+  nexus: {
+    chef_json: {
+      nexus: nexus_data
+    }
+  },
   jenkins: {
     chef_json: {
       misc: {

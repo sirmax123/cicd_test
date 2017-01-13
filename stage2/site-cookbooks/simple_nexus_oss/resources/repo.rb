@@ -1,5 +1,5 @@
-property :name,          String, default: 'NewRepoName'
-property :repo_id,       String
+property :name,          String
+property :repo_id,       String, default: ''
 property :exposed,       String, default: true
 property :indexable,     String, default: 'true'
 property :repoPolicy,    String, default: 'RELEASE'

@@ -1,3 +1,5 @@
+#!/opt/chef/embedded/bin/ruby
+
 require 'net/http'
 require 'nokogiri'
 
@@ -28,13 +30,10 @@ def get_xml(url_string, root_username, root_password)
   response.body  
 end
 
-
-def create_repo(repo_name, repo_id, exposed, indexable, 
-                repoPolicy, browseable, repo_format ,repo_provider ,
-                repoType, root_username, root_password, endpoint
-                )
-
+def create_repo(repo_name, repo_id, exposed, indexable, repoPolicy, browseable, repo_format ,repo_provider ,repoType, root_username, root_password, endpoint)
+#  hardcoded path
   repositories_endpoint = 'repositories'
+# hardcoded repo template  
   repo_template  = "
 <repository>
 <data>
@@ -54,9 +53,9 @@ def create_repo(repo_name, repo_id, exposed, indexable,
    </data>
 </repository>
 "
-  puts(repo_template)
-  result = post_xml(endpoint + repositories_endpoint, repo_template, root_username, root_password)
-  return result
+puts(repo_template)
+result = post_xml(endpoint + repositories_endpoint, repo_template, root_username, root_password)
+return result
 end
 
 
@@ -64,10 +63,7 @@ end
 #'Artifact Upload'
 
 
-def create_role(role_name, role_id, role_description, privileges_string, 
-                root_username, root_password, endpoint
-                )
-
+def create_role(role_name, role_id, role_description, privileges_string, root_username, root_password, endpoint)
   roles_endpoint = "roles"
   role_template = "
 <role-request>
@@ -93,23 +89,21 @@ return result
 end
 
 
-def get_privileges_ids_by_names(priv_name_list=[], root_username, root_password, endpoint)
-  puts('=========get_privileges_ids_by_names======')
+def get_privileges_ids_by_names(priv_name_list, root_username, root_password, endpoint)
 
   privs_endpoint = "privileges"
 
   priv_id_list = []
-  puts("PrivsNAmeList = " + priv_name_list.to_s)
-  puts("Endpoint = " + endpoint.to_s)
-  puts("Ptivs EP = " + privs_endpoint.to_s)
-
   result = get_xml(endpoint + privs_endpoint, root_username, root_password)
   docXML = Nokogiri::XML(result)
   
+  #puts(docXML)
+
   priv_name_list.map! { |item| item = "name='" + item.to_s + "'" }
   search_string = priv_name_list.join(' or ')
   privilege_items = docXML.xpath("/privilege-list-response/data/privilege-item[#{search_string}]")
   
+
   privilege_items.each do |privilege_item|
     #puts(privilege_item)
     id = privilege_item.at('id').text
@@ -118,13 +112,13 @@ def get_privileges_ids_by_names(priv_name_list=[], root_username, root_password,
   return priv_id_list
 end
 
-
 def format_privileges_id_to_xml(privileges_ids)
   xml = ""
   privileges_ids.map! { |item| item = "<privilege>" + item.to_s + "</privilege>" }
   xml = privileges_ids.join("\n")
   return xml
 end
+
 
 
 def create_user(user_id, user_email, user_status='active', 

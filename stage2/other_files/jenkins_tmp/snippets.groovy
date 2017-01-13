@@ -269,6 +269,6 @@ aeUu0lJq8azIrMNTcqTjiZuJw0xBkbNQy392FQx7WolSnQtVHw==
 
 //create_or_update_credentials(username='test', password='', description="descr", private_key=ssh_key)
 
-create_or_update_credentials(username='test3',  password='', id='12345', description="descr hui vam", private_key=ssh_key)
+create_or_update_credentials(username='test3',  password='test123', id='test_user_mm_123', description="descr hui vam", private_key="")
 
 

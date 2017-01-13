@@ -76,10 +76,11 @@ node ("master") {
         )
         stage('Build')
 
-        def pom = readMavenPom file:  "pom.xml"
-        println("==============")
-        println(pom)
-        println("==============")
+//        def pom = readMavenPom file:  "pom.xml"
+//
+//        println("==============")
+//        println(pom)
+//        println("==============")
 
         withMaven(maven: 'M3') 
         {

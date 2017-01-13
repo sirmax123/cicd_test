@@ -89,20 +89,45 @@ remote_file "WaitForNexuss" do
     backup false
 end
 
-simple_nexus_oss_repo 'test-repo6' do
+
+
+node[:nexus][:repos].each do |current_repo|
+  Chef::Log.info(" --- #{current_repo}")
+
+  simple_nexus_oss_repo "#{current_repo}" do
+    action :create
+  end
+
+end
+
+
+simple_nexus_oss_role 'nexusJenkinsRole' do
+  role_description 'JenkinsUploader'
   action :create
 end
 
 
-#simple_gitlab_manage_groups 'groups' do
-#  users             users_list
-#  groups            node['gitlab']['groups']
-#  access_level      50
-#  root_username     'root'
-#  root_password     "#{node['gitlab']['root_password']}"
-#  base_gitlab_url   "#{node['gitlab']['external_url']}"
-#  action          :add_users_to_groups
-#end
 
+
+
+node[:nexus][:users].each do |current_user|
+  Chef::Log.info(" --- #{current_user}")
+
+  current_user.each do |user_id,user_details|
+
+    Chef::Log.info(" --- #{user_id}")
+    Chef::Log.info(" --- #{user_details}")
+
+    simple_nexus_oss_user user_id  do
+      user_roles   [
+		     'nexusJenkinsRole',
+                     'repo-all-full',
+                     'repository-any-read'
+                   ]
+      user_password user_details['password']
+      action :create
+    end
+  end
+end
 
 

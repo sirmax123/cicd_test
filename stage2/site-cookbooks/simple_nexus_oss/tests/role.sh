@@ -8,5 +8,6 @@ NEXUS_LOCAL='http://127.0.0.1:8081/nexus'
 
 
 curl -i -H "Accept: application/xml" -H "ContentType: application/xml; charset=UTF-8"  -u $NEXUS_USER:$NEXUS_PASS $NEXUS_LOCAL/service/local/roles
+curl -i -H "Accept: application/xml" -H "ContentType: application/xml; charset=UTF-8"  -u $NEXUS_USER:$NEXUS_PASS $NEXUS_LOCAL/service/local/roles/test-repo4
 
 

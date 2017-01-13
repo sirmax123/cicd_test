@@ -40,30 +40,58 @@ jenkins_credentials 'jenkins_main_ssh_key' do
 end
 
 
-
-jenkins_credentials 'nexus_user' do
+jenkins_credentials 'just_test_user' do
   admin_user     node['jenkins']['admin_user']
   admin_password node['jenkins']['admin_password']
-  username       node['jenkins']['nexus_user']['username']
-  password       node['jenkins']['nexus_user']['password']
-  description    'nexus_user'
+  username       'user'
+  password       'password'
+  description    'user / password test user :)'
   action         :create
 end
 
 
 
-node['jenkins']['plugins'].each do |jenkins_plugin|
-  puts(jenkins_plugin)
-  jenkins_plugin "#{jenkins_plugin}" do
-    username node['jenkins']['admin_user']
-    password node['jenkins']['admin_password']
-    action   :install
-  end
+
+#node['jenkins']['plugins'].each do |jenkins_plugin|
+#  puts(jenkins_plugin)
+#  jenkins_plugin "#{jenkins_plugin}" do
+#    username node['jenkins']['admin_user']
+#    password node['jenkins']['admin_password']
+#    action   :install
+#  end
+#end
+
+
+jenkins_maven 'M3' do
+  version    '3.3.9'
+  admin_user     node['jenkins']['admin_user']
+  admin_password node['jenkins']['admin_password']
+  action      :install
 end
+
+
+jenkins_maven 'M331' do
+  version    '3.3.1'
+  admin_user     node['jenkins']['admin_user']
+  admin_password node['jenkins']['admin_password']
+  action      :install
+end
+
+
 
 
 jenkins_safe_restart 'restart' do
   admin_user     node['jenkins']['admin_user']
   admin_password node['jenkins']['admin_password']
   action         :do_safe_restart
+end
+
+
+
+remote_file "wait Jenkins startup workaround 2" do
+  path        "/tmp/jenkins_2"
+  source      "http://127.0.0.1:8080/"
+  retries     60
+  retry_delay 10
+  backup      false
 end

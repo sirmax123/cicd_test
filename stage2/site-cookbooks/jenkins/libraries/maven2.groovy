@@ -59,4 +59,6 @@ def addMavenIfNotExist(String mavenName, String mavenVersion) {
   }
 }
 
-addMavenIfNotExist('M33333', '3.3.3')
+addMavenIfNotExist('M3', '3.3.3')
+
+
