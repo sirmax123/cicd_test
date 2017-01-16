@@ -1,4 +1,4 @@
-repoName= 'https://github.com/sirmax123/cicd_test.git'
+repoName = 'https://github.com/sirmax123/cicd_test.git'
 branchName = 'master'
 
 
@@ -21,6 +21,8 @@ properties(
 		], 
 		pipelineTriggers([])]
 )
+
+import org.apache.commons.lang.StringUtils
 
 
 
@@ -52,9 +54,35 @@ node("vagrant"){
     	dir("stage2/jenkins_jobs/all_in_one_node") {
         	sh "pwd; ls -lsa; id; whoami"
         	withEnv(['PATH=${PATH}:/usr/local/bin']) {
+
+        		vmList = sh script: "VBoxManage list  vms", returnStdout: true
+        		println(vmList)
+
+
         		sh "vagrant plugin install vagrant-hosts"
         		sh "vagrant plugin install vagrant-vbguest"
-        		sh "vagrant up"
+        		try {
+        			sh "vagrant up"
+        			vmList_vagrant_up = sh script: "VBoxManage list  vms", returnStdout: true
+        			println("vmList_vagrant_up = " + vmList_vagrant_up)
+        			println("vmList = " + vmList)
+        			vmList_diff = StringUtils.difference(vmList_vagrant_up, vmList);
+        			println("vmList_diff = " + vmList_diff)
+
+			    } catch (Exception err) {
+        			println("Error found")
+        			//sh "vagrant destroy --force"
+        			println("-----")
+        			vmList_vagrant_destroy = sh script: "VBoxManage list  vms", returnStdout: true
+        			println("vmList_vagrant_destroy = \n" + vmList_vagrant_destroy)
+        			vmList_diff = StringUtils.difference(vmList_vagrant_destroy, vmList);
+        			println("vmList_diff = \n" + vmList_diff)
+        			println("-----")
+        			
+
+        			currentBuild.result = 'FAILURE'
+
+        		}
         	}
         }
    }

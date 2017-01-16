@@ -27,8 +27,9 @@ sql_databases = {
 nodes = {
   all_in_one: {
     box: 'centos/6',
-    ip: '10.0.1.200',
+    ip: '10.0.2.200',
     roles: [
+      'route_add',
       'mysql_server', 
       'mysql_databases',
       'misc',
@@ -55,6 +56,8 @@ app_config = {
           'rpmdevtools'
         ]
       },
+      mysql_databases: sql_databases,
+      mysql_root_connection: sql_root_credentials,
       database_creds: sql_databases[:petclinic],
       database_host: '127.0.0.1',
       mysql_server: {
