@@ -1,0 +1,16 @@
+{
+  "name": "misc",
+  "chef_type": "role",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+    "misc": {
+      "packages_to_install": [
+        "mc"
+      ]
+    }
+  },  
+  "description": "misc",
+  "run_list": [
+      "recipe[misc]"
+  ]
+}

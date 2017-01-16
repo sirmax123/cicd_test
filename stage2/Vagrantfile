@@ -14,7 +14,6 @@ jenkins_plugins = [
   "buildgraph-view",
   "build-timeout",
   "build-timestamp",
-  "chucknorris",
   "cloudbees-bitbucket-branch-source",
   "cloudbees-folder",
   "conditional-buildstep",
@@ -151,6 +150,21 @@ jenkins_shell_scripts_post_chef = [
   } 
 ]
 
+
+
+
+vagrant_user = {
+  username: 'jenkins',
+  password: 'jenkins123'
+}
+
+
+jenkins_slaves = [
+  vagrant: {
+    host: '10.0.2.2',
+    credentials: vagrant_user
+  }
+]
 
 
 jenkins_public_key = {
@@ -303,7 +317,8 @@ app_config = {
         plugins: jenkins_plugins,
         admin_user: 'root',
         admin_password: 'r00tme',
-        git_url: 'http://' + nodes[:gitlab][:ip]
+        git_url: 'http://' + nodes[:gitlab][:ip],
+        jenkins_slaves: jenkins_slaves
       }
     }
   },

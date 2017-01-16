@@ -1,0 +1,11 @@
+{
+  "name": "petclinic_pre_configure",
+  "chef_type": "role",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+  },
+  "description": "petclinic_pre_configure",
+  "run_list": [
+      "recipe[petclinic]"
+  ]
+}

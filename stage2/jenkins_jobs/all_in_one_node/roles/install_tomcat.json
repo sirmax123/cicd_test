@@ -1,0 +1,11 @@
+{
+  "name": "install_tomcat",
+  "chef_type": "role",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+  },
+  "description": "install_tomcat",
+  "run_list": [
+      "recipe[install_tomcat]"
+  ]
+}

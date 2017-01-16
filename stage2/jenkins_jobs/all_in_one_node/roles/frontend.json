@@ -1,0 +1,13 @@
+{
+  "name": "frontend",
+  "chef_type": "role",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+  },
+  "description": "frontend",
+  "run_list": [
+      "recipe[selinux::permissive]",
+      "recipe[apache2]",
+      "recipe[frontend]"
+  ]
+}

@@ -1,11 +1,22 @@
 properties(
     [
         [
+            $class: 'BuildDiscarderProperty', 
+            strategy: 
+                [
+                    $class: 'LogRotator', 
+                    artifactDaysToKeepStr: '5', 
+                    artifactNumToKeepStr: '5', 
+                    daysToKeepStr: '5', 
+                    numToKeepStr: '5'
+                ]
+        ],
+        [
             $class: 'ParametersDefinitionProperty', 
              parameterDefinitions: 
                 [
                     [
-                        $class: 'StringParameterDefinition', 
+                        $class: 'StringParameterDefinition',
                         defaultValue: 'test', 
                         description: 'Job Name', 
                         name: 'ArtifactSourceJobName'
@@ -36,13 +47,13 @@ properties(
                     ],
                     [
                         $class: 'StringParameterDefinition', 
-                        defaultValue: 'petclinic', 
+                        defaultValue: 'petclinic-group', 
                         description: 'Nexus Group Id (WTF???)', 
                         name: 'NexusGroupId'
                     ],
                     [
                         $class: 'StringParameterDefinition', 
-                        defaultValue: 'petclinic', 
+                        defaultValue: 'petclinic-artifacr-id', 
                         description: 'Nexus Artifact Id', 
                         name: 'NexusArtifactId'
                     ],
@@ -73,17 +84,6 @@ properties(
 
                 ]
         ],
-        [
-            $class: 'BuildDiscarderProperty', 
-            strategy: 
-                [
-                    $class: 'LogRotator', 
-                    artifactDaysToKeepStr: '30', 
-                    artifactNumToKeepStr: '30', 
-                    daysToKeepStr: '10', 
-                    numToKeepStr: '50'
-                ]
-        ],
         pipelineTriggers([])
     ]
 )
@@ -96,16 +96,26 @@ import groovy.io.FileType
 try {
     upstreamBuildName =  currentBuild.rawBuild.getCause(hudson.model.Cause$UpstreamCause).properties.upstreamProject
     upstreamBuildNumber =  currentBuild.rawBuild.getCause(hudson.model.Cause$UpstreamCause).properties.upstreamBuild
-
     println(upstreamBuildName)
     println(upstreamBuildNumber)
-    
-    currentBuild.displayName = "${env.BUILD_NUMBER}-${upstreamBuildName}-${upstreamBuildNumber}"
-    currentBuild.description = "${env.BUILD_NUMBER}-${upstreamBuildName}-${upstreamBuildNumber}"
+        
+    currentBuild.displayName = "${env.BUILD_NUMBER}-UpstreamJob=${upstreamBuildName}-UpstreamBuildNumber=${upstreamBuildNumber}"
+    currentBuild.description = currentBuild.displayName
 }
 catch (java.lang.NullPointerException e) {
-    println("No upstream job found")
-    
+    println("No upstream job found")    
+}
+
+
+
+try {
+    specificCause = currentBuild.rawBuild.getCause(hudson.model.Cause$UserIdCause).properties
+    println(specificCause.userId)
+    currentBuild.displayName = "${env.BUILD_NUMBER}-startedBy: ${specificCause.userId}"
+    currentBuild.description = "${env.BUILD_NUMBER}-startedBy: ${specificCause.userId}"
+} 
+catch (java.lang.NullPointerException e) {
+    println("No user found")
 }
 
 println("====== DEBUG START ========")
@@ -206,6 +216,27 @@ node("master") {
                repository: NexusRepoName,
                credentialsId: NexusCredentialsId
            } // end stage("Upload Artifact To Nexus " + currentArtifact )
-        }                  
+           println(NexusProtocol + "://" + NexusURL+"/content/repositories/" + NexusRepoName + "/" 
+                   + NexusGroupId + "/" + NexusArtifactId + "/" + NexisArtifactVersion + "/" + NexusArtifactId + "-" + NexisArtifactVersion + 
+                   "." + NexusArtifactType)
+        } // end list.each
+
+        stage("Publish Link To File") {
+
+            res = new File(env.WORKSPACE.toString() + "/nexus.link").createNewFile()
+            def resultFile = new File(env.WORKSPACE.toString() + "/nexus.link")
+            resultFile.write(NexusProtocol + "://" + NexusURL+"/content/repositories/" + NexusRepoName + "/" 
+                   + NexusGroupId + "/" + NexusArtifactId + "/" + NexisArtifactVersion + "/" + NexusArtifactId + "-" + NexisArtifactVersion + 
+                   "." + NexusArtifactType)
+        }
+        stage('Publish Artifact To Jenkins') {
+            step(
+                [
+                    $class: 'ArtifactArchiver', 
+                    artifacts: 'nexus.link', 
+                    fingerprint: true
+                ],
+            )
+        }
     } 
 }

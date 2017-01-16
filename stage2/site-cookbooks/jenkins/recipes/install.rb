@@ -9,6 +9,16 @@ end
 # Move hardcod to params!
 yum_package 'jenkins = 1.658-1.1'
 
+
+
+template '/etc/sysconfig/jenkins' do
+  source '/jenkins.erb'
+  mode '0600'
+  owner 'root'
+  group 'root'
+end
+
+
 service "jenkins" do
   action [:start, :enable]
 end
@@ -50,8 +60,43 @@ jenkins_credentials 'just_test_user' do
 end
 
 
+#==> jenkins:  {"vagrant"=>{"host"=>"10.0.2.2", "credentials"=>{"username"=>"jenkins", "password"=>"jenkins123"}}}
+node['jenkins']['jenkins_slaves'].each do |current_jenkins_slave|
+
+  Chef::Log.info(" ---\n\n #{current_jenkins_slave} \n\n ----")
+  current_jenkins_slave.each do |jenkins_slave_name, jenkins_slave_data|
+    Chef::Log.info(" ---\n\n #{jenkins_slave_name} \n\n ----")
+    Chef::Log.info(" ---\n\n #{jenkins_slave_data} \n\n ----")
+
+    Chef::Log.info(" ---\n\n #{jenkins_slave_data[:host]} \n\n ----")
+
+  
+    Chef::Log.info(" ---\n\n #{jenkins_slave_data[:credentials][:username]} \n\n ----")
+    Chef::Log.info(" ---\n\n #{jenkins_slave_data[:credentials][:password]} \n\n ----")
+
+    jenkins_credentials "SLAVE_USER_#{jenkins_slave_name}" do
+      admin_user     node['jenkins']['admin_user']
+      admin_password node['jenkins']['admin_password']
+      username       "#{jenkins_slave_data[:credentials][:username]}"
+      password       "#{jenkins_slave_data[:credentials][:password]}"
+      description    "Slave User for #{jenkins_slave_name}"
+      action         :create
+    end
+
+    jenkins_slave "#{jenkins_slave_name}" do
+      admin_user     node['jenkins']['admin_user']
+      admin_password node['jenkins']['admin_password']
+      host           "#{jenkins_slave_data[:host]}"
+      description    "SomeSlave"
+      label          "#{jenkins_slave_name}"
+      credentials    "SLAVE_USER_#{jenkins_slave_name}"
+      action         :create
+    end
+  end
+end
 
 
+# remove comment from this section!!!!!!!
 #node['jenkins']['plugins'].each do |jenkins_plugin|
 #  puts(jenkins_plugin)
 #  jenkins_plugin "#{jenkins_plugin}" do
