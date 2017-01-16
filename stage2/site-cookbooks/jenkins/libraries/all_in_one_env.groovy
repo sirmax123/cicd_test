@@ -28,7 +28,7 @@ node("vagrant"){
 	stage("Cleanup") {
 		step([$class: 'WsCleanup']) 
 	}
-	
+
 	stage ('git checkout') {
 		checkout(
 		   [
@@ -53,6 +53,7 @@ node("vagrant"){
         	sh "pwd; ls -lsa; id; whoami"
         	withEnv(['PATH=${PATH}:/usr/local/bin']) {
         		sh "vagrant plugin install vagrant-hosts"
+        		sh "vagrant plugin install vagrant-vbguest"
         		sh "vagrant up"
         	}
         }

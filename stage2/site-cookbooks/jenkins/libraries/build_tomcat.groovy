@@ -2,6 +2,10 @@ repoName = "https://github.com/gdelprete/rpm-tomcat8.git"
 branchName = "master"
 
 node("master"){
+	stage("Cleanup") {
+		step([$class: 'WsCleanup']) 
+	}
+		
 	stage ('git checkout') {
 		checkout(
 		   [
