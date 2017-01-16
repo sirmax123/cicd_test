@@ -26,21 +26,18 @@ sql_databases = {
 
 nodes = {
   all_in_one: {
-    'instance_type': 'database',
     box: 'centos/6',
     ip: '10.0.1.200',
     roles: [
       'mysql_server', 
       'mysql_databases',
-      'misc'
+      'misc',
       'oracle_java',
       'petclinic_pre_configure',
-      'frontend',
-
+      'frontend'
     ],
     'shell_scripts': [], 
-    'ports_pains': [
-    ]
+    'ports_pains': []
   }
 }
 
@@ -56,12 +53,11 @@ app_config = {
           'git',
           'redhat-lsb-core', 
           'rpmdevtools'
-        ],
+        ]
       },
       database_creds: sql_databases[:petclinic],
-      database_host: nodes[:db][:ip],
-      mysql_server:
-      {
+      database_host: '127.0.0.1',
+      mysql_server: {
         root_password:   sql_root_credentials[:password],
         bind_address:    '0.0.0.0',
         bind_port:       '3306',
@@ -100,11 +96,11 @@ app_config = {
           "cgi",
           "version"
        ]
+      }
     }
   }
+}
 
-
-puts(app_config[:apache])
 
 Vagrant.configure("2") do |config|
   config.vm.box = "centos/6"
