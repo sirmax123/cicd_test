@@ -56,7 +56,7 @@ node("vagrant"){
         	withEnv(['PATH=${PATH}:/usr/local/bin']) {
 
         		vmList = sh script: "VBoxManage list  vms", returnStdout: true
-        		println(vmList)
+        		println("vmList = " + vmList)
 
 
         		sh "vagrant plugin install vagrant-hosts"
