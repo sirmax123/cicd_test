@@ -1,3 +1,12 @@
+# access to dynamic slaves
+
+route '10.0.10.0/24' do
+  gateway '10.0.1.1'
+end
+
+
+
+
 
 yum_repository 'jenkins' do
   description "Jenkins Repo"
@@ -48,6 +57,17 @@ jenkins_credentials 'jenkins_main_ssh_key' do
   description    'Main SSH key one-for-all'
   action         :create
 end
+
+
+jenkins_credentials 'dynamic_slaves' do
+  admin_user     node['jenkins']['admin_user']
+  admin_password node['jenkins']['admin_password']
+  username       'root'
+  private_key    node['jenkins']['jenkins_slave_private_key']
+  description    'creds_for_all_dynamic_slaves'
+  action         :create
+end
+
 
 
 jenkins_credentials 'just_test_user' do

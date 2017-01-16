@@ -5,7 +5,7 @@ node("master"){
 	stage("Cleanup") {
 		step([$class: 'WsCleanup']) 
 	}
-		
+
 	stage ('git checkout') {
 		checkout(
 		   [
@@ -31,7 +31,7 @@ node("master"){
 			sed -i  's/publish-rpm/#publish-rpm/g' make_rpm.sh
 			./make_rpm.sh
 		""", 
-			returnStdout: true
+		returnStdout: true
 
 		println(buildResult)
 	}

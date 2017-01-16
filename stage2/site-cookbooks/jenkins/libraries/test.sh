@@ -22,4 +22,5 @@ echo "
                   new LinkedList())
     slave.getNodeProperties().add(envPro)
     Jenkins.instance.addNode(slave)
-" | java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/ groovy = --username=root --password=r00tme
+" 
+#| java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/ groovy = --username=root --password=r00tme

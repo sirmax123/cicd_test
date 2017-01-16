@@ -151,6 +151,37 @@ jenkins_shell_scripts_post_chef = [
 ]
 
 
+jenkins_slave_public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAu8wYzxDlUQntJUCKoqR68hXQOzf0w4/pc7/8pFEEkLT0hbmmVrR5wgUWajwu1TI8SMCYo9LEClFNkTWcF+cPGBGc1jvlO9j410SvINI401ZkNwI4Tgkcq5NklcXc7zqQMO60gOzlzdy2NkOutQI8pc87eefMN3l6zrxixLMWMJuqj10MIncqkLoS+FtPTZHDiO7iFvlsNjqJX/EnUJHGDeyePQz8MhVYcxQu7UiOpYCSjg28MlNmPoccK0/oAul7cTaItHeqn+B47zojxcBs0iq0gs2eNZdlGNVCcYmhGMaGSQD61vh1hFhKOZdzEhckA8PQVpHB9kfCPakj73AbaQ== root@jenkins"
+jenkins_slave_private_key = """-----BEGIN RSA PRIVATE KEY-----
+MIIEoAIBAAKCAQEAu8wYzxDlUQntJUCKoqR68hXQOzf0w4/pc7/8pFEEkLT0hbmm
+VrR5wgUWajwu1TI8SMCYo9LEClFNkTWcF+cPGBGc1jvlO9j410SvINI401ZkNwI4
+Tgkcq5NklcXc7zqQMO60gOzlzdy2NkOutQI8pc87eefMN3l6zrxixLMWMJuqj10M
+IncqkLoS+FtPTZHDiO7iFvlsNjqJX/EnUJHGDeyePQz8MhVYcxQu7UiOpYCSjg28
+MlNmPoccK0/oAul7cTaItHeqn+B47zojxcBs0iq0gs2eNZdlGNVCcYmhGMaGSQD6
+1vh1hFhKOZdzEhckA8PQVpHB9kfCPakj73AbaQIBIwKCAQBbNz9AAORpMLUDdx7E
+Br9fpDHw4KoV2C+P/ipBLqpyLAG9S4tOr25W7Ic66ggeaNtzy0LTOnx6CjueTT0w
+LmZqxrnkZjwkYhJ3L/1KdLyD6CIMFwVnu0hwmAxIvzDL99+ivRXYOIzgVUKPYrPx
+hL5fKiQz5Z20i3Yp5nkdthIXmzqTYzOySOSo8jTer741cIyri4wo/gsaaY9n5zcI
+61TZf9eTV3t/fIJTDGMikuUdG2CZyqSgc9BWKzon3DNV2JHyKV/G8Wf5UGJ9vJ8W
+Qee3GA5kMpqs6Pjnkyhpuisu3JXspHMp6LwcQeubnAu6ALJ7MSN+DTSfpvZuj5Ca
+sqoLAoGBAPZLqqSekSbEdReC3FUnrnWBDX+xegDhQtUAvPWMi4f5vUFHhpHEd1Rw
+EAv1vcaIwXuJd+LZHOGaw5JfuetQTaU2+Vac7yaQBOpHHtnHUUB9GlzCurzs1AjM
+a3zzCdBAIu/xiLaN6iw3/p//Utzd7LwlINV3Y0lkqPCA/Uczv6aZAoGBAMMyXqK6
+fR339/gFYHKKsEqIlOd6g3KXD1Djo3UqIbyQoKEghwLBf45I+bE34+FZSn1PfCwO
+3qqI8hIQG+1cOE9lyeVf070OkGmHHnruuk9FhHZbMjlsTR+c0WM7afBpGaz3y1cv
+AfMwSmrMuAWXGelZegwm9SpX+8dRhEmbT61RAoGAP1VJIwQz9AahxDeXviAli+38
+KCZSkoMRL3U3516niV15zvUimoL6HQbfjgv9mXOfd4m/vf1Qkci18nBjAf604VdH
+bgsY7KiwzodRE23Eb6skCTljN+UglIxWJ3GyEPqMpBmJjgc8N0GZPxXE2bVowqp2
+KENFaqTa/APpW3O08FMCgYALJ3MfPdtDioMyvnqKM8+POwExzHyKNISIR4Wu7Hb0
+1RB+PF98gBXq35k9U6afKax8MG1+3Ec88eHyZ1INkD27ZOb3KgwZbovoxeR8DaQ/
+C0ll2VNTvQu4qeAUTIm192CNioCl5W3TYdhd39AAUcb3ZDLcH3u5Rtsv9gePLXJE
+awKBgFEcQ0HXNUelIDVYx1c9tWjPl2Btp/qX+yYNZrs1M9gobZ/7Df6iJS7Cswul
+nwifYMh4gJioGVfDUkE2tWrczZI4nV2xUJM9dO4P3NJ+rY2dsiIVMWFlZntKLBnZ
+/re4x/13K17WN45iwfo73SEviajgJbCvb0j3SErt86IdXtR6
+-----END RSA PRIVATE KEY-----
+"""
+
+
 
 
 vagrant_user = {
@@ -318,7 +349,8 @@ app_config = {
         admin_user: 'root',
         admin_password: 'r00tme',
         git_url: 'http://' + nodes[:gitlab][:ip],
-        jenkins_slaves: jenkins_slaves
+        jenkins_slaves: jenkins_slaves,
+        jenkins_slave_private_key: jenkins_slave_private_key
       }
     }
   },
