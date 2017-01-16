@@ -27,7 +27,7 @@ sql_databases = {
 nodes = {
   all_in_one: {
     box: 'centos/6',
-    ip: '10.0.2.200',
+    ip: '10.0.10.200',
     roles: [
       'route_add',
       'mysql_server', 

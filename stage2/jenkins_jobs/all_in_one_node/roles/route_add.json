@@ -2,9 +2,7 @@
   "name": "route_add",
   "chef_type": "role",
   "json_class": "Chef::Role",
-  "default_attributes": {
-    }
-  },  
+  "default_attributes": { }
   "description": "route_add",
   "run_list": [
       "recipe[route_add]"
