@@ -3,7 +3,7 @@ def defaultRepoName = "git@10.0.1.11:cicd/petclinic.git"
 def defaultBranchName = "master"
 
 
-def buildJobName = "test"
+def buildJobName = "build_petclinic"
 def publishJobName = "up"
 def createAllInOneEnvJobName = "create_all_in_one_env"
 def destroyAllInOneEnvJobName = "destroy_all_in_one_node"
@@ -15,7 +15,6 @@ def deployPetclinincJobName = 'deploy_petclininc'
 
 
 /////
-
 
 
 properties(
@@ -135,13 +134,13 @@ node("master") {
 	
 
 			stage("Deploy Tomcat") {
-				println("Not Implemented. In Progress")
+				println("Deploy Tomcat")
 				deployTomcatBuild = build(job: deployTomcatJobName)
 			}
 
 	
 			stage("Deploy Petclininc") {
-				
+				println("Deploy Petclininc")
 				deployPetclinicBuild = build(
 											job: deployPetclinincJobName,
         									parameters:
@@ -149,7 +148,7 @@ node("master") {
             									[
                 									$class: 'StringParameterValue',
                 									name: 'ArtifactSourceBuildNumber',
-                									value: buildArtifact.getNumber().toString()
+                									value: publishArtifact.getNumber().toString()
             									]
         									]
 											)
@@ -239,8 +238,15 @@ node("master") {
 				    case 'Destroy failed env':
 				        destroySelector = 'yes'
 				    break
+
+
+
 				}// end swotch    
 			} //  end stage("Ask What to do next") 
+			
+			stage("Fail this build"){
+					currentBuild.result = 'FAILURE'
+			}
 		// end catch
 		} finally {
 
@@ -257,9 +263,6 @@ node("master") {
 					destroyAllInOneEnvBuild = build(job: destroyAllInOneEnvJobName)
 				}
 
-				stage("Fail this build"){
-					currentBuild.result = 'FAILURE'
-				}
 			} //end if
 		} // end fianlly
 	} // end wrapper

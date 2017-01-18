@@ -13,6 +13,26 @@ deps = [
   "make"
 ]
 
+jobs_to_be_added = [
+  "add_slave.groovy",
+  "all.groovy",
+  "all_in_one_env.groovy",
+  "build_chuck.groovy",
+  "build_petclinic.groovy",
+  "build_tomcat.groovy",
+  "check_node.groovy",
+  "delete_slave.groovy",
+  "deploy_petclininc.groovy",
+  "deploy_tomcat.groovy",
+  "destroy_all_in_one_node.groovy",
+  "test_slave.groovy",
+  "up.groovy"
+]
+
+
+
+
+
 log 'message' do
   message "#{node}"
   level :info
@@ -222,6 +242,24 @@ template '/root/.ssh/config' do
   })
 end
 
+
+
+
+directory '/tmp/jobs_to_add' do
+  owner 'root'
+  group 'root'
+  mode '0600'
+  action :create
+end
+
+jobs_to_be_added.each do |job_to_add|
+    template "jobs_to_add/#{job_to_add}" do
+      source "job/#{job_to_add}"
+      mode '0600'
+      owner 'root'
+      group 'root'
+  end
+end
 
 execute 'copy_repo' do
   command '/tmp/clone_repo_to_new_server.sh'

@@ -34,7 +34,6 @@ def choice = new ChoiceParameterDefinition(
                                     "yes\nno\n",
                                     '12345')
 
-
 stage("ask") {
 
 
@@ -45,14 +44,19 @@ switch (doDestroy) {
 
     case 'Ask with 5 min timeout (default: destroy)':
         res = 'Ask with 5 min timeout (default: destroy)'
-
-        timeout(1) {
-        def destroySelector = input(
+        try {
+            timeout(1) {
+            def destroySelector = input(
                                 message: 'message',
                                 parameters: [choice],
                                 id: 'destroySelectorId'
                                 )
+            }
         }
+        catch(Exception e) {
+           destroySelector = "yes" 
+        }
+        
 
     break
 

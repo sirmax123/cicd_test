@@ -14,6 +14,8 @@ cd ${TMP}
 git clone git@<%= @git_ip %>:cicd/petclinic.git
 cp -r  ${TMP}/spring-petclinic/*  ${TMP}/petclinic/
 cd petclinic
+mkdir jobs
+cp /tmp/jobs_to_add* jobs/
 git add -A
 git commit -m 'init'
 git push origin master

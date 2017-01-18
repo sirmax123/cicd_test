@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.9">
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.synopsys.arc.jenkinsci.plugins.jobrestrictions.jobs.JobRestrictionProperty plugin="job-restrictions@0.6"/>
+    <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+      <triggers/>
+    </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.23">
+    <script>repoName = &apos;https://github.com/szhem/chucknorris-plugin&apos;
+branchName = &apos;jenkins-pipeline&apos;
+
+
+
+node(&quot;master&quot;) {
+	wrap([$class: &apos;AnsiColorBuildWrapper&apos;, $class: &apos;TimestamperBuildWrapper&apos;]) {
+
+        stage (&apos;git checkout&apos;) {
+	        checkout(
+	           [
+	               $class: &apos;GitSCM&apos;,
+	               branches: [[name: &quot;${branchName}&quot;]],
+	               doGenerateSubmoduleConfigurations: false,
+	               extensions: [],
+	               submoduleCfg: [],
+	               userRemoteConfigs:
+	               [
+	                   [
+	                       url: &quot;${repoName}&quot;,
+	                       poll: true
+	                   ]
+	               ]
+	           ]
+	        )
+    	} // end stage (&apos;git checkout&apos;) 
+
+		stage(&quot;Build Chuck&quot;) {
+    	    withMaven(maven: &apos;M3&apos;) 
+        	{
+        	    // Run the maven build 
+        	    sh &quot;mvn clean install&quot;
+        	}
+    	} // end stage(&quot;Build Chuck&quot;)
+
+    	stage(&apos;Publish Artifact To Jenkins&apos;) {
+    		sh &quot;&quot;&quot;
+				cp target/chucknorris.hpi /var/lib/jenkins/plugins
+    		&quot;&quot;&quot;
+    	} //end stage(&apos;Publish Artifact To Jenkins&apos;)
+	} // end wrap
+} // end node</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+</flow-definition>

@@ -1,4 +1,5 @@
 jenkins_plugins = [
+  "permissive-script-security",
   "ace-editor",
   "active-directory",
   "ansicolor",
@@ -208,6 +209,11 @@ other_public_key = {
   key_title:  "root@nowhere"
 }
 
+my_public_key = {
+  key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5EIrDnnxNBQavZcxiaHCzt0tjtfW0nNuFAz9f+fs4dL0/3wTbDCWO1l2tahTlupM8r/Tm4Sq20Gsrndl37zEFoqFZG42m1COuEMBgppl4er0cetlZV0qeKfcKQ0xXlZUE1LMJwQoBqAFl4QJ6g25PSPESJxd3wQ1RUfjvJ9kvW8c4sLHD0MjLAmX+VjFlbqNtM1l3uAIMc17RP4B2u4s2FqoyCjg9IxcGlL364FOWJZdHjFaBJvg1k4zo+WzSA2YtOgFxI0CWHUTIcjLD6d3np534zONNxjxsrUz5MBROPUQYOT9y3m9RDBXJVhdvk7V7lTzFYsrTrsJy+gu0pTCL"
+  key_title =  "root@mmaxur-pc"
+}
+
 
 
 
@@ -376,6 +382,13 @@ app_config = {
             public_key: other_public_key,
             email: 'nobody@nodomain.tld'
           }
+          sirmax: {
+            name: 'sirmax',
+            password: 'sirmax123',
+            public_key: my_public_key,
+            email: 'sirmax123@gmail.com'
+          }
+
         ],
         groups: [
           'cicd'

@@ -160,3 +160,59 @@ remote_file "wait Jenkins startup workaround 2" do
   retry_delay 10
   backup      false
 end
+
+
+## need to do this in better way, will fix
+
+job_list  = [
+  "build_chuck",
+  "disable_security"
+  ]
+
+job_list.each do |current_job|
+  template "/tmp/#{current_job}.xml" do
+    source "#{current_job}.xml.erb"
+    mode '0600'
+    owner 'root'
+    group 'root'
+  end
+
+  bash "#{current_job}" do
+  code <<-EOH
+    /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/  \
+    get-job #{current_job} \
+    --username=#{node['jenkins']['admin_user']} \
+    --password=#{node['jenkins']['admin_password']} || \
+    cat /tmp/#{current_job}.xml | \
+    /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/  \
+    create-job  #{current_job} \
+    --username=#{node['jenkins']['admin_user']} \
+    --password=#{node['jenkins']['admin_password']}
+    EOH
+  end
+  
+end
+#
+bash "disable_security" do
+  code <<-EOH
+  /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/  \
+  build disable_security \
+  --username=#{node['jenkins']['admin_user']} \
+  --password=#{node['jenkins']['admin_password']}
+  EOH
+end
+
+
+
+# build chuck
+bash "build_chuck" do
+  code <<-EOH
+  /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/  \
+  build build_chuck \
+  --username=#{node['jenkins']['admin_user']} \
+  --password=#{node['jenkins']['admin_password']}
+  EOH
+end
+
+
+
