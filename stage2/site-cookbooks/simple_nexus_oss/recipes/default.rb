@@ -1,5 +1,9 @@
 ## very basic!!!! will remove hardcode/shell if I'll have time
 
+route '10.0.10.0/24' do
+  gateway '10.0.1.1'
+end
+
 Chef::Log.info(" --- NEXUS_OSS ---")
 
 

@@ -42,6 +42,130 @@ remote_file "wait Jenkins startup workaround" do
 end
 
 
+
+## w/o creds now
+#node['jenkins']['plugins'].each do |jenkins_plugin|
+#  puts(jenkins_plugin)
+#  jenkins_plugin "#{jenkins_plugin}" do
+##    username node['jenkins']['admin_user']
+##    password node['jenkins']['admin_password']
+#    action   :install
+#  end
+#end
+
+
+
+
+
+remote_file "wait Jenkins startup after plugins install" do
+  path        "/tmp/jenkins_2"
+  source      "http://127.0.0.1:8080/"
+  retries     60
+  retry_delay 10
+  backup      false
+end
+
+
+## need to move to provider
+bash "disable_security" do
+  code <<-EOH
+  echo org.jenkinsci.plugins.permissivescriptsecurity.PermissiveWhitelist.enabled=true | java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/ groovy =
+  EOH
+end
+
+
+## need to do this in better way, will fix
+
+job_list  = [
+  "build_chuck",
+  ]
+
+job_list.each do |current_job|
+  template "/tmp/#{current_job}.xml" do
+    source "#{current_job}.xml.erb"
+    mode '0600'
+    owner 'root'
+    group 'root'
+  end
+
+  bash "#{current_job}" do
+  code <<-EOH
+    /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/ get-job #{current_job} || cat /tmp/#{current_job}.xml | /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/  create-job  #{current_job}
+    EOH
+  end
+
+end
+#
+
+
+
+jenkins_maven 'M3' do
+  version    '3.3.9'
+#  admin_user     node['jenkins']['admin_user']
+#  admin_password node['jenkins']['admin_password']
+  action      :install
+end
+
+
+jenkins_maven 'M331' do
+  version    '3.3.1'
+#  admin_user     node['jenkins']['admin_user']
+#  admin_password node['jenkins']['admin_password']
+  action      :install
+end
+
+
+
+### Build Chuck
+template '/tmp/build_chuck.groovy' do
+  source '/build_chuck.groovy.erb'
+  mode '0600'
+  owner 'root'
+  group 'root'
+end
+
+
+# build chuck
+# code like
+# /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/  build   build_chuck
+# does not work w/o ssh keys for some reason and I was not able to find how to add ssh keys
+# so use this workaround
+bash "build_chuck" do
+  code <<-EOH
+  cat /tmp/build_chuck.groovy | /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/ groovy =
+  EOH
+end
+
+jenkins_safe_restart 'restart_after_plugins_install' do
+  action         :do_safe_restart
+end
+
+
+remote_file "wait Jenkins startup after Chuck Added" do
+  path        "/tmp/jenkins_2"
+  source      "http://127.0.0.1:8080/"
+  retries     60
+  retry_delay 10
+  backup      false
+end
+
+
+# stop here!
+#bash "manual_fail" do
+#  code <<-EOH
+#  false
+#  EOH
+#end
+
+
+
+
+
+
+
+
+
+
 jenkins_security 'root'  do
   admin_user     node['jenkins']['admin_user']
   admin_password node['jenkins']['admin_password']
@@ -116,34 +240,6 @@ node['jenkins']['jenkins_slaves'].each do |current_jenkins_slave|
 end
 
 
-# remove comment from this section!!!!!!!
-#node['jenkins']['plugins'].each do |jenkins_plugin|
-#  puts(jenkins_plugin)
-#  jenkins_plugin "#{jenkins_plugin}" do
-#    username node['jenkins']['admin_user']
-#    password node['jenkins']['admin_password']
-#    action   :install
-#  end
-#end
-
-
-jenkins_maven 'M3' do
-  version    '3.3.9'
-  admin_user     node['jenkins']['admin_user']
-  admin_password node['jenkins']['admin_password']
-  action      :install
-end
-
-
-jenkins_maven 'M331' do
-  version    '3.3.1'
-  admin_user     node['jenkins']['admin_user']
-  admin_password node['jenkins']['admin_password']
-  action      :install
-end
-
-
-
 
 jenkins_safe_restart 'restart' do
   admin_user     node['jenkins']['admin_user']
@@ -160,59 +256,4 @@ remote_file "wait Jenkins startup workaround 2" do
   retry_delay 10
   backup      false
 end
-
-
-## need to do this in better way, will fix
-
-job_list  = [
-  "build_chuck",
-  "disable_security"
-  ]
-
-job_list.each do |current_job|
-  template "/tmp/#{current_job}.xml" do
-    source "#{current_job}.xml.erb"
-    mode '0600'
-    owner 'root'
-    group 'root'
-  end
-
-  bash "#{current_job}" do
-  code <<-EOH
-    /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/  \
-    get-job #{current_job} \
-    --username=#{node['jenkins']['admin_user']} \
-    --password=#{node['jenkins']['admin_password']} || \
-    cat /tmp/#{current_job}.xml | \
-    /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/  \
-    create-job  #{current_job} \
-    --username=#{node['jenkins']['admin_user']} \
-    --password=#{node['jenkins']['admin_password']}
-    EOH
-  end
-  
-end
-#
-bash "disable_security" do
-  code <<-EOH
-  /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/  \
-  build disable_security \
-  --username=#{node['jenkins']['admin_user']} \
-  --password=#{node['jenkins']['admin_password']}
-  EOH
-end
-
-
-
-# build chuck
-bash "build_chuck" do
-  code <<-EOH
-  /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/  \
-  build build_chuck \
-  --username=#{node['jenkins']['admin_user']} \
-  --password=#{node['jenkins']['admin_password']}
-  EOH
-end
-
-
 

@@ -1,5 +1,5 @@
-property :admin_user, String
-property :admin_password, String
+property :admin_user, String, default: ''
+property :admin_password, String, default: ''
 property :jenkins_url, String, default: 'http://127.0.0.1:8080/'
 
 property :username, String
@@ -23,8 +23,11 @@ action :create do
   
   puts(groovy_code)
   
-  jenkins_cli = get_jenkins_cli() + " -s #{jenkins_url} groovy = --username=#{admin_user} --password=#{admin_password}"
-
+  if admin_password.length > 0 && admin_user.length > 0
+    jenkins_cli = get_jenkins_cli() + " -s #{jenkins_url} groovy = --username=#{admin_user} --password=#{admin_password}"
+  else
+      jenkins_cli = get_jenkins_cli() + " -s #{jenkins_url} groovy = "
+  end
   cmd = "#{groovy_code} | #{jenkins_cli}"
   res = `#{cmd}`
 end

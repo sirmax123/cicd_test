@@ -1,0 +1,15 @@
+import hudson.model.*
+import hudson.AbortException
+import hudson.console.HyperlinkNote
+import java.util.concurrent.CancellationException
+
+def job = Hudson.instance.getJob('build_chuck')
+def anotherBuild
+try {
+    def future = job.scheduleBuild2(0)
+    println "Waiting for the completion of " + HyperlinkNote.encodeTo('/' + job.url, job.fullDisplayName)
+    anotherBuild = future.get()
+} catch (CancellationException x) {
+    throw new AbortException("${job.fullDisplayName} aborted.")
+}
+println HyperlinkNote.encodeTo('/' + anotherBuild.url, anotherBuild.fullDisplayName) + " completed. Result was " + anotherBuild.result
