@@ -52,7 +52,7 @@ end
 jenkins_credentials 'jenkins_main_ssh_key' do
   admin_user     node['jenkins']['admin_user']
   admin_password node['jenkins']['admin_password']
-  username       'jenkins'
+  username       'jenkins_main'
   private_key    node['jenkins']['private_key']
   description    'Main SSH key one-for-all'
   action         :create

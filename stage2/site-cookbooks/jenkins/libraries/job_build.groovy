@@ -2,7 +2,18 @@ properties(
     [
         [
             $class: 'JobRestrictionProperty'
-        ], 
+        ],
+        [
+            $class: 'BuildDiscarderProperty', 
+            strategy: 
+                [
+                    $class: 'LogRotator', 
+                    artifactDaysToKeepStr: '5', 
+                    artifactNumToKeepStr: '5', 
+                    daysToKeepStr: '5', 
+                    numToKeepStr: '5'
+                ]
+        ],
         [
             $class: 'ParametersDefinitionProperty', 
              parameterDefinitions: 
@@ -31,14 +42,15 @@ node ("master") {
     step([$class: 'hudson.plugins.chucknorris.CordellWalkerRecorder'])
     wrap([$class: 'AnsiColorBuildWrapper', $class: 'TimestamperBuildWrapper']) {
 
+
         try {
             upstreamBuildName =  currentBuild.rawBuild.getCause(hudson.model.Cause$UpstreamCause).properties.upstreamProject
             upstreamBuildNumber =  currentBuild.rawBuild.getCause(hudson.model.Cause$UpstreamCause).properties.upstreamBuild
             println(upstreamBuildName)
             println(upstreamBuildNumber)
                 
-            currentBuild.displayName = "${env.BUILD_NUMBER}-${upstreamBuildName}-${upstreamBuildNumber}"
-            currentBuild.description = "${env.BUILD_NUMBER}-${upstreamBuildName}-${upstreamBuildNumber}"
+            currentBuild.displayName = "${env.BUILD_NUMBER}-UpstreamJob=${upstreamBuildName}-UpstreamBuildNumber=${upstreamBuildNumber}"
+            currentBuild.description = currentBuild.displayName
         }
         catch (java.lang.NullPointerException e) {
             println("No upstream job found")    
@@ -85,6 +97,8 @@ node ("master") {
         withMaven(maven: 'M3') 
         {
             // Run the maven build 
+            sh "sed -i  's#<!-- <dependency> <groupId>mysql</groupId> <artifactId>mysql-connector-java</artifactId> <version>\${mysql.version}</version> </dependency> -->#<dependency> <groupId>mysql</groupId> <artifactId>mysql-connector-java</artifactId> <version>\${mysql.version}</version> </dependency>#' pom.xml"
+            sh "sed -i \"s#GRANT ALL PRIVILEGES ON petclinic.* TO pc@localhost IDENTIFIED BY 'pc';# #\" src/main/resources/db/mysql/initDB.sql"
             sh "mvn clean install"
         }
 

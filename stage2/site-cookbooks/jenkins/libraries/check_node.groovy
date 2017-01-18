@@ -80,6 +80,4 @@ def checkIfNodeIsOnline(node) {
     println("STATUS = " + status);
 }
 
-node("master") {
-    checkIfNodeIsOnline(node)
-}
+checkIfNodeIsOnline(node)

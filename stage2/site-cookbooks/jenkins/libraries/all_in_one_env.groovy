@@ -24,12 +24,15 @@ properties(
 
 import org.apache.commons.lang.StringUtils
 
-
+// Const
+def artifactName = 'workspace.link'
 
 node("vagrant"){
 	stage("Cleanup") {
 		step([$class: 'WsCleanup']) 
 	}
+
+
 
 	stage ('git checkout') {
 		checkout(
@@ -50,7 +53,17 @@ node("vagrant"){
 		   ]
 		)
 	}
-    stage("test"){
+
+	stage("Prepere File") {
+	// Create File	
+		artifactFileName = env.WORKSPACE.toString() + "/" + artifactName
+		println(artifactFileName)
+		sh "ls " +  env.WORKSPACE.toString() + "/" 
+		sh "echo  " + env.WORKSPACE.toString() + " >> " + artifactFileName
+	}
+
+
+    stage("Run Vagrant"){
     	dir("stage2/jenkins_jobs/all_in_one_node") {
         	sh "pwd; ls -lsa; id; whoami"
         	withEnv(['PATH=${PATH}:/usr/local/bin']) {
@@ -69,9 +82,11 @@ node("vagrant"){
         			vmList_diff = StringUtils.difference(vmList_vagrant_up, vmList);
         			println("vmList_diff = " + vmList_diff)
 
+
 			    } catch (Exception err) {
         			println("Error found")
-        			//sh "vagrant destroy --force"
+        			println(err)
+        			sh "vagrant destroy --force"
         			println("-----")
         			vmList_vagrant_destroy = sh script: "VBoxManage list  vms", returnStdout: true
         			println("vmList_vagrant_destroy = \n" + vmList_vagrant_destroy)
@@ -83,7 +98,18 @@ node("vagrant"){
         			currentBuild.result = 'FAILURE'
 
         		}
-        	}
-        }
-   }
+        	} //end withEnv
+        } // end dir 
+    } //end Stage Run Vagrant
+
+	stage('Publish Artifact To Jenkins') {
+		step(
+			[
+ 				$class: 'ArtifactArchiver', 
+ 				artifacts: artifactName, 
+ 				fingerprint: true
+			],
+		)
+	}        			
+
 }
