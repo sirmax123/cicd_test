@@ -18,18 +18,19 @@ deps = [
 ]
 
 jobs_to_be_added = [
-  "add_slave.groovy",
+  "add_dynamic_slave.groovy",
   "all.groovy",
-  "all_in_one_env.groovy",
   "build_chuck.groovy",
   "build_petclinic.groovy",
   "build_tomcat.groovy",
   "check_node.groovy",
+  "create_all_in_one_env.groovy",
   "delete_slave.groovy",
   "deploy_petclininc.groovy",
   "deploy_tomcat.groovy",
   "destroy_all_in_one_node.groovy",
   "test_slave.groovy",
+  "trigger.groovy",
   "up.groovy"
 ]
 
