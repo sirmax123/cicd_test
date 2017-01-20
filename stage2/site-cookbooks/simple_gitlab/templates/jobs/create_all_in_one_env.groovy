@@ -1,5 +1,5 @@
-repoName = 'https://github.com/sirmax123/cicd_test.git'
-branchName = 'master'
+defaultRepoName = 'https://github.com/sirmax123/cicd_test.git'
+defaultBranchName = 'master'
 
 
 properties(
@@ -14,7 +14,25 @@ properties(
 					daysToKeepStr: '3', 
 					numToKeepStr: '3'
 				]
-		], 
+		],
+        [
+            $class: 'ParametersDefinitionProperty', 
+             parameterDefinitions: 
+                [
+                    [
+                        $class: 'StringParameterDefinition', 
+                        defaultValue: defaultBranchName , 
+                        description: 'Branch Name', 
+                        name: 'branchName'
+                    ],
+                    [
+                        $class: 'StringParameterDefinition', 
+                        defaultValue: defaultRepoName,
+                        description: 'Source Repo', 
+                        name: 'repoName'
+                    ]
+          		]
+        ],
 		disableConcurrentBuilds(), 
 		[
 			$class: 'JobRestrictionProperty'
@@ -65,8 +83,12 @@ node("vagrant"){
 
     stage("Run Vagrant"){
     	dir("stage2/jenkins_jobs/all_in_one_node") {
-        	sh "pwd; ls -lsa; id; whoami"
-        	withEnv(['PATH=${PATH}:/usr/local/bin']) {
+        	sh "pwd" 
+        	sh "ls -lsa"
+        	sh "id"
+        	sh "whoami"
+        	
+        	withEnv(['PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/usr/local/bin']) {
 
         		vmList = sh script: "VBoxManage list  vms", returnStdout: true
         		println("vmList = " + vmList)
@@ -111,5 +133,4 @@ node("vagrant"){
 			],
 		)
 	}        			
-
 }

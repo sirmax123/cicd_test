@@ -47,6 +47,9 @@ node(&quot;master&quot;) {
 
     	stage(&apos;Publish Artifact To Jenkins&apos;) {
     		sh &quot;&quot;&quot;
+				rm -rf /var/lib/jenkins/plugins/chucknorris || true
+				rm -rf /var/lib/jenkins/plugins/chucknorris.hpi
+				rm -rf /var/lib/jenkins/plugins/chucknorris.jpi
 				cp target/chucknorris.hpi /var/lib/jenkins/plugins
     		&quot;&quot;&quot;
     	} //end stage(&apos;Publish Artifact To Jenkins&apos;)

@@ -56,6 +56,7 @@ def checkSlaveJobName = 'check_node'
 
 @NonCPS
 def checkNode(checkSlaveJobName){
+    println('Start ')
 
     def checkStatus = build(
     job: checkSlaveJobName,
@@ -73,13 +74,13 @@ def checkNode(checkSlaveJobName){
 
 @NonCPS
 def addNewSlave(newSlaveName) {
-    List<Entry> env = new ArrayList<Entry>();
+    //List<Entry> env = new ArrayList<Entry>();
     
-    env.add(new Entry("key1","value1"))
-    env.add(new Entry("key2","value2"))
+    //env.add(new Entry("key1","value1"))
+    //env.add(new Entry("key2","value2"))
     
-    EnvironmentVariablesNodeProperty envPro = new EnvironmentVariablesNodeProperty(env);
-    println('1')
+    //EnvironmentVariablesNodeProperty envPro = new EnvironmentVariablesNodeProperty(env);
+    //println('1')
     Slave slave = new DumbSlave(
                       "dynamic-slave","dynamic-slave",
                       "/root",
@@ -92,16 +93,15 @@ def addNewSlave(newSlaveName) {
                       new RetentionStrategy.Always(),
                       new LinkedList()
                       )
-    println('2')
-    slave.getNodeProperties().add(envPro)
-    println('3')
+    println(slave)
+    //slave.getNodeProperties().add(envPro)
+    //println('3')
     newNode = Jenkins.instance.addNode(slave)
-    println('4')
+    println(newNode)
     //println(newNode)
 }
+println("addNewSlave(newSlaveName)")
 addNewSlave(newSlaveName)
-//node("master") {
-    println('4.1 ')  
+println("checkNode(checkSlaveJobName)")
 checkNode(checkSlaveJobName)
-//}
-println('5')
+println("End")

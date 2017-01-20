@@ -1,4 +1,6 @@
 jenkins_plugins = [
+  "gitlab-plugin",
+  "nexus-artifact-uploader",
   "permissive-script-security",
   "ace-editor",
   "active-directory",

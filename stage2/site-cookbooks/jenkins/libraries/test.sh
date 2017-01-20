@@ -24,3 +24,18 @@ echo "
     Jenkins.instance.addNode(slave)
 " 
 #| java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/ groovy = --username=root --password=r00tme
+
+
+echo "
+
+import jenkins.model.*
+
+    void set_executors(int number) {
+
+    Jenkins jenkins = Jenkins.getInstance()
+    jenkins.setNumExecutors(number)
+    jenkins.save()
+}
+
+ set_executors(11)
+" | java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/ groovy =

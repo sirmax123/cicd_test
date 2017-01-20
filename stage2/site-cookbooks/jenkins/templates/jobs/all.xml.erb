@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.9">
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>5</daysToKeep>
+        <numToKeep>5</numToKeep>
+        <artifactDaysToKeep>5</artifactDaysToKeep>
+        <artifactNumToKeep>5</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>doDestroyonSuccess</name>
+          <description>If deployment is successful, what to do with env? </description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>Leave as is</string>
+              <string>Destroy</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>doDestroy</name>
+          <description>If deployment failed what to do with env?</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>Leave as is (for debug)</string>
+              <string>Destroy failed env</string>
+              <string>Ask</string>
+              <string>Ask with 5 min timeout (Destroy if no reply in timeout)</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>branchName</name>
+          <description>Branch Name</description>
+          <defaultValue>master</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>repoName</name>
+          <description>Source Repo</description>
+          <defaultValue>git@10.0.1.11:cicd/petclinic.git</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>allInOneBranchName</name>
+          <description>Branch Name</description>
+          <defaultValue>master</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>allInOneRepoName</name>
+          <description>Source Repo</description>
+          <defaultValue>https://github.com/sirmax123/cicd_test.git</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>slaveIpAddress</name>
+          <description>IP address of slave node</description>
+          <defaultValue>10.0.10.200</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>slaveCredentialsId</name>
+          <description>Credentials ID</description>
+          <defaultValue>dynamic_slaves</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>slaveName</name>
+          <description>Slave Name</description>
+          <defaultValue>dynamic-slave</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.24">
+    <scm class="hudson.plugins.git.GitSCM" plugin="git@3.0.1">
+      <configVersion>2</configVersion>
+      <userRemoteConfigs>
+        <hudson.plugins.git.UserRemoteConfig>
+          <url>git@10.0.1.11:cicd/petclinic.git</url>
+          <credentialsId>jenkins_main_ssh_key</credentialsId>
+        </hudson.plugins.git.UserRemoteConfig>
+      </userRemoteConfigs>
+      <branches>
+        <hudson.plugins.git.BranchSpec>
+          <name>**</name>
+        </hudson.plugins.git.BranchSpec>
+      </branches>
+      <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+      <submoduleCfg class="list"/>
+      <extensions/>
+    </scm>
+    <scriptPath>jobs/all.groovy</scriptPath>
+  </definition>
+  <triggers/>
+</flow-definition>

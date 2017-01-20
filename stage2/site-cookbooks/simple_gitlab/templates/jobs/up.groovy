@@ -17,7 +17,7 @@ properties(
                 [
                     [
                         $class: 'StringParameterDefinition',
-                        defaultValue: 'test', 
+                        defaultValue: 'build_petclinic', 
                         description: 'Job Name', 
                         name: 'ArtifactSourceJobName'
                     ],
@@ -50,12 +50,6 @@ properties(
                         defaultValue: 'petclinic-group', 
                         description: 'Nexus Group Id (WTF???)', 
                         name: 'NexusGroupId'
-                    ],
-                    [
-                        $class: 'StringParameterDefinition', 
-                        defaultValue: 'petclinic-artifacr-id', 
-                        description: 'Nexus Artifact Id', 
-                        name: 'NexusArtifactId'
                     ],
                     [
                         $class: 'StringParameterDefinition', 
@@ -125,6 +119,20 @@ println("ArtifactSourceFilter = " + ArtifactSourceFilter.toString())
 println("====== DEBUG END ==========")
 
 
+@NonCPS
+def getArtifactsList() {
+    def ArtifactsList = []
+    
+    println("===")
+    def WorkspaceDir = new File(env.WORKSPACE)
+    WorkspaceDir.eachFileRecurse (FileType.FILES) { cur_file ->
+        ArtifactsList << cur_file
+    }
+    return ArtifactsList;
+}
+
+
+
 node("master") {
     wrap(
         [
@@ -135,15 +143,13 @@ node("master") {
 
         stage("Pre-Actions") {
     
-            step(
-                [
-                    $class: 'hudson.plugins.chucknorris.CordellWalkerRecorder'
-                ]
-            );
+            step([$class: 'hudson.plugins.chucknorris.CordellWalkerRecorder']);
+            step([$class: 'WsCleanup'])
         }
     
+
         stage("Copy Artifact From Jenkins") {
-       
+  
             if  (ArtifactSourceBuildNumber ==~ /\d+/  ) {
                 println("ArtifactSourceBuildNumber is set.")
                 CopyArtifactSelector = [
@@ -168,11 +174,6 @@ node("master") {
         } // end stage("Copy Artifact From Jenkins")
 
 
-        // Debug only
-        //sh "rm pom.xml || true "
-
-
-
         //Append pom version if pom.xml exist 
         try {
             def pom = readMavenPom file:  "pom.xml"
@@ -188,24 +189,26 @@ node("master") {
             println(env.WORKSPACE)
             sh "pwd"
             sh "ls -lsa -r"
-            ArtifactsList = []
-            def WorkspaceDir = new File(env.WORKSPACE)
-            WorkspaceDir.eachFileRecurse (FileType.FILES) { cur_file ->
-                ArtifactsList << cur_file.toString().minus(env.WORKSPACE.toString() + "/")
-
-            }
+            artifactsList = getArtifactsList()
+            println(artifactsList)
         } // end stage("Find Files") 
 
 
-        ArtifactsList.each  { currentArtifact -> 
-           stage("Upload Artifact To Nexus " + currentArtifact ) {
+        for ( currentArtifact in artifactsList ) { 
+//           
+           nexusArtifactId = currentArtifact.getName()
+           println(nexusArtifactId)
+           fileName = currentArtifact.toString().minus(env.WORKSPACE.toString() + "/")
+           println(fileName)
+//
+           stage("Upload Artifact To Nexus " + currentArtifact.toString() ) {
                nexusArtifactUploader  artifacts:
                [
                    [
-                       artifactId: NexusArtifactId,
+                       artifactId: nexusArtifactId,
                        type: NexusArtifactType,
                        classifier: NexusArtifactClassifier,
-                       file: currentArtifact
+                       file: fileName
                    ]
                ],
                nexusVersion: 'nexus2',
@@ -216,19 +219,40 @@ node("master") {
                repository: NexusRepoName,
                credentialsId: NexusCredentialsId
            } // end stage("Upload Artifact To Nexus " + currentArtifact )
-           println(NexusProtocol + "://" + NexusURL+"/content/repositories/" + NexusRepoName + "/" 
-                   + NexusGroupId + "/" + NexusArtifactId + "/" + NexisArtifactVersion + "/" + NexusArtifactId + "-" + NexisArtifactVersion + 
-                   "." + NexusArtifactType)
-        } // end list.each
+           println(
+                    NexusProtocol + "://" + 
+                    NexusURL+"/content/repositories/" + 
+                    NexusRepoName + "/" + 
+                    NexusGroupId + "/" + 
+                    nexusArtifactId + "/" + 
+                    NexisArtifactVersion + "/" + 
+                    nexusArtifactId + "-" + 
+                    NexisArtifactVersion + 
+                    "." + NexusArtifactType
+                )
 
-        stage("Publish Link To File") {
+            stage("Publish Link To File") {
+                if (nexusArtifactId == 'petclinic.war') {
+                    res = new File(env.WORKSPACE.toString() + "/nexus.link").createNewFile()
+                    def resultFile = new File(env.WORKSPACE.toString() + "/nexus.link")
+            
+                    resultFile.write(
+                                NexusProtocol + "://" + 
+                                NexusURL+"/content/repositories/" + 
+                                NexusRepoName + "/" + 
+                                NexusGroupId + "/" + 
+                                nexusArtifactId + "/" + 
+                                NexisArtifactVersion + "/" + 
+                                nexusArtifactId + "-" + 
+                                NexisArtifactVersion + 
+                                "." + NexusArtifactType
+                            )
+                }
+            }
 
-            res = new File(env.WORKSPACE.toString() + "/nexus.link").createNewFile()
-            def resultFile = new File(env.WORKSPACE.toString() + "/nexus.link")
-            resultFile.write(NexusProtocol + "://" + NexusURL+"/content/repositories/" + NexusRepoName + "/" 
-                   + NexusGroupId + "/" + NexusArtifactId + "/" + NexisArtifactVersion + "/" + NexusArtifactId + "-" + NexisArtifactVersion + 
-                   "." + NexusArtifactType)
-        }
+
+        } // end for
+
         stage('Publish Artifact To Jenkins') {
             step(
                 [

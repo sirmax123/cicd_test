@@ -47,8 +47,8 @@ end
 #node['jenkins']['plugins'].each do |jenkins_plugin|
 #  puts(jenkins_plugin)
 #  jenkins_plugin "#{jenkins_plugin}" do
-##    username node['jenkins']['admin_user']
-##    password node['jenkins']['admin_password']
+###    username node['jenkins']['admin_user']
+###    password node['jenkins']['admin_password']
 #    action   :install
 #  end
 #end
@@ -57,13 +57,23 @@ end
 
 
 
-remote_file "wait Jenkins startup after plugins install" do
-  path        "/tmp/jenkins_2"
+jenkins_safe_restart 'restart' do
+#  admin_user     node['jenkins']['admin_user']
+#  admin_password node['jenkins']['admin_password']
+  action         :do_safe_restart
+end
+
+
+
+remote_file "wait  jenkins_safe_restart_before_disable_security" do
+  path        "/tmp/jenkins_safe_restart_before_disable_security"
   source      "http://127.0.0.1:8080/"
   retries     60
   retry_delay 10
   backup      false
 end
+
+
 
 
 ## need to move to provider
@@ -77,18 +87,32 @@ end
 ## need to do this in better way, will fix
 
 job_list  = [
-  "build_chuck",
+  "add_dynamic_slave",
+  "all",
+  "build_petclinic",
+  "build_tomcat",
+  "check_node",
+  "create_all_in_one_env",
+  "c",
+  "delete_slave",
+  "deploy_petclininc",
+  "deploy_tomcat",
+  "destroy_all_in_one_node",
+  "test_slave",
+  "trigger",
+  "up",
+  "build_chuck"
   ]
 
 job_list.each do |current_job|
   template "/tmp/#{current_job}.xml" do
-    source "#{current_job}.xml.erb"
+    source "jobs/#{current_job}.xml.erb"
     mode '0600'
     owner 'root'
     group 'root'
   end
 
-  bash "#{current_job}" do
+  bash "add #{current_job}" do
   code <<-EOH
     /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/ get-job #{current_job} || cat /tmp/#{current_job}.xml | /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/  create-job  #{current_job}
     EOH
@@ -96,6 +120,15 @@ job_list.each do |current_job|
 
 end
 #
+
+
+
+
+
+jenkins_executors 'set_executors' do
+  action :set
+  number '9'
+end
 
 
 
@@ -142,7 +175,7 @@ end
 
 
 remote_file "wait Jenkins startup after Chuck Added" do
-  path        "/tmp/jenkins_2"
+  path        "/tmp/jenkins_0002"
   source      "http://127.0.0.1:8080/"
   retries     60
   retry_delay 10
@@ -204,6 +237,17 @@ jenkins_credentials 'just_test_user' do
 end
 
 
+# hardcoded user
+jenkins_credentials 'chucknorrus' do
+  admin_user     node['jenkins']['admin_user']
+  admin_password node['jenkins']['admin_password']
+  username       'chucknorris'
+  password       'chucknorris'
+  description    'Chuck Norris'
+  action         :create
+end
+
+
 #==> jenkins:  {"vagrant"=>{"host"=>"10.0.2.2", "credentials"=>{"username"=>"jenkins", "password"=>"jenkins123"}}}
 node['jenkins']['jenkins_slaves'].each do |current_jenkins_slave|
 
@@ -249,11 +293,17 @@ end
 
 
 
-remote_file "wait Jenkins startup workaround 2" do
-  path        "/tmp/jenkins_2"
+remote_file "wait Jenkins startup last check" do
+  path        "/tmp/jenkins_999"
   source      "http://127.0.0.1:8080/"
   retries     60
   retry_delay 10
   backup      false
 end
 
+
+jenkins_build_job "trigger" do
+  admin_user     node['jenkins']['admin_user']
+  admin_password node['jenkins']['admin_password']
+  action :build
+end

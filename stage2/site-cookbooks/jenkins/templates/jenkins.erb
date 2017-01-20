@@ -44,7 +44,7 @@ JENKINS_USER="jenkins"
 #
 # Options to pass to java when running Jenkins.
 #
-JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true -XX:MaxPermSize=256m -Xmx1500M"
+JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true -XX:MaxPermSize=256m -Xmx1500M -Dpermissive-script-security.enabled=true"
 
 ## Type:        integer(0:65535)
 ## Default:     8080

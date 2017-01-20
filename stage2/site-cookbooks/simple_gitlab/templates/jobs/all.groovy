@@ -2,7 +2,17 @@
 def defaultRepoName = "git@10.0.1.11:cicd/petclinic.git"
 def defaultBranchName = "master"
 
+// Vgrant File is stored in separate repo
+def defaultAllInOneRepoName = 'https://github.com/sirmax123/cicd_test.git'
+def defaultAllInOneBranchName = 'master'
 
+// Dynamic slave params
+def defaultSlaveIpAddress = '10.0.10.200'
+def defaultSlaveCredentialsId = 'dynamic_slaves'
+def defaultSlaveName = 'dynamic-slave'
+
+
+// names of jobs
 def buildJobName = "build_petclinic"
 def publishJobName = "up"
 def createAllInOneEnvJobName = "create_all_in_one_env"
@@ -46,6 +56,48 @@ properties(
                         choices: "Leave as is (for debug)\nDestroy failed env\nAsk\nAsk with 5 min timeout (Destroy if no reply in timeout)\n",
                         description: 'If deployment failed what to do with env?', 
                         name: 'doDestroy'
+                    ],
+                    [
+                        $class: 'StringParameterDefinition', 
+                        defaultValue: defaultBranchName , 
+                        description: 'Branch Name', 
+                        name: 'branchName'
+                    ],
+                    [
+                        $class: 'StringParameterDefinition', 
+                        defaultValue: defaultRepoName,
+                        description: 'Source Repo', 
+                        name: 'repoName'
+                    ],
+                    [
+                        $class: 'StringParameterDefinition', 
+                        defaultValue: defaultAllInOneBranchName , 
+                        description: 'Branch Name', 
+                        name: 'allInOneBranchName'
+                    ],
+                    [
+                        $class: 'StringParameterDefinition', 
+                        defaultValue: defaultAllInOneRepoName,
+                        description: 'Source Repo', 
+                        name: 'allInOneRepoName'
+                    ],
+                    [
+                        $class: 'StringParameterDefinition', 
+                        defaultValue: defaultSlaveIpAddress, 
+                        description: 'IP address of slave node', 
+                        name: 'slaveIpAddress'
+                    ],
+                   	[
+                        $class: 'StringParameterDefinition', 
+                        defaultValue: defaultSlaveCredentialsId, 
+                        description: 'Credentials ID', 
+                        name: 'slaveCredentialsId'
+                    ],
+                   	[
+                        $class: 'StringParameterDefinition', 
+                        defaultValue: defaultSlaveName, 
+                        description: 'Slave Name', 
+                        name: 'slaveName'
                     ]
                 ]
         ],        
@@ -80,12 +132,12 @@ node("master") {
 		            	[
 		                	$class: 'StringParameterValue',
 		                	name: 'repoName',
-		                	value: defaultRepoName
+		                	value: repoName
 		            	],
 		            	[
 		                	$class: 'StringParameterValue',
 		                	name: 'branchName',
-		                	value: defaultBranchName
+		                	value: branchName
 		            	]	
 		        	]
 		    	)
@@ -110,13 +162,69 @@ node("master") {
 		                	$class: 'StringParameterValue',
 		                	name: 'ArtifactSourceBuildNumber',
 		                	value: buildArtifact.getNumber().toString()
-		            	]
+			            ],
+	                    [
+	                        $class: 'StringParameterValue', 
+	                        value: 'target/*.war, pom.xml', 
+	                        name: 'ArtifactSourceFilter'
+	                    ],
+	                    [
+	                        $class: 'StringParameterValue', 
+	                        value: 'nexus:8081/nexus', 
+	                        name: 'NexusURL'
+	                    ],
+	                    [
+	                        $class: 'StringParameterValue', 
+	                        value: "http",
+	                        name: 'NexusProtocol'
+	                    ],
+	                    [
+	                        $class: 'StringParameterValue', 
+	                        value: 'petclinic-group', 
+	                        name: 'NexusGroupId'
+	                    ],
+	                    [
+	                        $class: 'StringParameterValue', 
+	                        value: 'war', 
+	                        name: 'NexusArtifactType'
+	                    ],
+	                    [
+	                        $class: 'StringParameterValue', 
+	                        value: '', 
+	                        name: 'NexusArtifactClassifier'
+	                    ],
+	                    [
+	                        $class: 'StringParameterValue', 
+	                        value: 'petclinic', 
+	                        name: 'NexusRepoName'
+	                    ],
+	                    [
+	                        $class: 'StringParameterValue', 
+	                        value: 'chucknorris', 
+	                        name: 'NexusCredentialsId'
+	                    ]
 		        	]
 		    	)
 		} //end stage("publishNexus")
 		
 		stage("Create All-In-One Env") {
-			allInOneEnvBuild = build(job: createAllInOneEnvJobName)
+			allInOneEnvBuild = build(
+				job: createAllInOneEnvJobName,
+		    	parameters:
+		        	[
+		            	[
+		                	$class: 'StringParameterValue',
+		                	name: 'branchName',
+		                	value: allInOneBranchName
+		            	],
+		            	[
+		                	$class: 'StringParameterValue',
+		                	name: 'repoName',
+		                	value: allInOneRepoName
+		            	]
+		        	]
+			)
+
 		} // end of Create  All-In-One Env
 	
 		//Even if next steps will failed we need to destroy created env
@@ -124,34 +232,71 @@ node("master") {
 	
 		try {
 			stage("Register All-In-One Env as Slave Node") {
-				allInOneEnvSlaveBuild = build(job: registerSlaveJobName)
+				allInOneEnvSlaveBuild = build(
+					job: registerSlaveJobName,
+		    		parameters:
+		        		[
+		            		[
+		                		$class: 'StringParameterValue',
+		                		name: 'IpAddress',
+		                		value: slaveIpAddress
+		            		],
+		            		[
+		                		$class: 'StringParameterValue',
+		                		name: 'CredentialsId',
+		                		value: slaveCredentialsId
+		            		],
+		            		[
+		                		$class: 'StringParameterValue',
+		                		name: 'newSlaveName',
+		                		value: slaveName
+		            		]
+		            	]
+				)
 			} //end of Register All-In-One Env as Slave Node
 	
 
 			stage("Do New-Registerd Slave Test") {
-				slaveTestBuild = build(slaveTestJobName)
+				slaveTestBuild = build(
+					job: slaveTestJobName
+				)
 			}
 	
 
 			stage("Deploy Tomcat") {
 				println("Deploy Tomcat")
-				deployTomcatBuild = build(job: deployTomcatJobName)
+				deployTomcatBuild = build(
+					job: deployTomcatJobName,
+		    		parameters:
+		        		[
+		            		[
+		                		$class: 'StringParameterValue',
+		                		name: 'ArtifactSourceJobName',
+		                		value: 'build_tomcat'
+		            		],
+		            		[
+		                		$class: 'StringParameterValue',
+		                		name: 'ArtifactSourceBuildNumber',
+		                		value: ''
+		            		]
+		            	]
+				)
 			}
 
 	
 			stage("Deploy Petclininc") {
 				println("Deploy Petclininc")
 				deployPetclinicBuild = build(
-											job: deployPetclinincJobName,
-        									parameters:
-        									[
-            									[
-                									$class: 'StringParameterValue',
-                									name: 'ArtifactSourceBuildNumber',
-                									value: publishArtifact.getNumber().toString()
-            									]
-        									]
-											)
+					job: deployPetclinincJobName,
+        			parameters:
+        				[
+            				[
+                				$class: 'StringParameterValue',
+                				name: 'ArtifactSourceBuildNumber',
+                				value: publishArtifact.getNumber().toString()
+            				]
+        				]
+				)
 			}
 		
 			stage("Do Tests") {
@@ -255,12 +400,43 @@ node("master") {
 	
 				stage("Unregister slave") {
 					println("Unregister Slave")
-					deleteSlaveBuild = build(job: deleteSlaveJobName)
+					deleteSlaveBuild = build(
+						job: deleteSlaveJobName,
+			    		parameters:
+			        		[
+			            		[
+		    	            		$class: 'StringParameterValue',
+		        	        		name: 'slaveName',
+		            	    		value: slaveName
+		            			]
+		            		]
+
+					)
 				}
 							
 				stage("Destoy All-In-One") {
 					println("Destroy env")
-					destroyAllInOneEnvBuild = build(job: destroyAllInOneEnvJobName)
+					destroyAllInOneEnvBuild = build(
+						job: destroyAllInOneEnvJobName,
+			    		parameters:
+			        		[
+			            		[
+		    	            		$class: 'StringParameterValue',
+		        	        		name: 'ArtifactSourceJobName',
+		            	    		value: createAllInOneEnvJobName.getNumber().toString()
+		            			],
+			            		[
+		    	            		$class: 'StringParameterValue',
+		        	        		name: 'ArtifactSourceBuildNumber',
+		            	    		value: allInOneEnvBuild
+		            			],
+			            		[
+		    	            		$class: 'StringParameterValue',
+		        	        		name: 'ArtifactSourceFilter',
+		            	    		value: 'workspace.link'
+		            			]		        
+		            		]
+		            	)
 				}
 
 			} //end if
