@@ -6,6 +6,12 @@ end
 
 
 
+#jenkins_build_job "build_chuck" do
+#  admin_user     node['jenkins']['admin_user']
+#  admin_password node['jenkins']['admin_password']
+#  action :build
+#end
+
 
 
 yum_repository 'jenkins' do
@@ -238,7 +244,7 @@ end
 
 
 # hardcoded user
-jenkins_credentials 'chucknorrus' do
+jenkins_credentials 'chucknorris' do
   admin_user     node['jenkins']['admin_user']
   admin_password node['jenkins']['admin_password']
   username       'chucknorris'
@@ -302,8 +308,9 @@ remote_file "wait Jenkins startup last check" do
 end
 
 
-jenkins_build_job "trigger" do
-  admin_user     node['jenkins']['admin_user']
-  admin_password node['jenkins']['admin_password']
-  action :build
-end
+
+#jenkins_build_job "trigger" do
+#  admin_user     node['jenkins']['admin_user']
+#  admin_password node['jenkins']['admin_password']
+#  action :build
+#end

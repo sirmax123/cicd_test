@@ -18,7 +18,7 @@ action :build do
         println \\\"Waiting for the completion of \\\" + HyperlinkNote.encodeTo('/' + job.url, job.fullDisplayName)
         anotherBuild = future.get()
     } catch (CancellationException x) {
-        throw new AbortException(\\\"${job.fullDisplayName} aborted.\\\")
+        throw new AbortException(\\\"\\\${job.fullDisplayName} aborted.\\\")
     }
     println HyperlinkNote.encodeTo('/' + anotherBuild.url, anotherBuild.fullDisplayName) + \\\" completed. Result was \\\" + anotherBuild.result
   """

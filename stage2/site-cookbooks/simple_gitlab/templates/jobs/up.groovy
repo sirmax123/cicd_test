@@ -202,6 +202,23 @@ node("master") {
            println(fileName)
 //
            stage("Upload Artifact To Nexus " + currentArtifact.toString() ) {
+
+            println("nexusArtifactUploader  artifacts:" +          " \n " +
+                    " artifactId: "    +  nexusArtifactId +        " \n " +
+                    " type: "          + NexusArtifactType +       " \n " +
+                    " classifier: "    + NexusArtifactClassifier + " \n " +
+                    " file: "          + fileName +                " \n " +
+                    " nexusVersion: "  +  'nexus2' +               " \n " +
+                    " protocol: "      +  NexusProtocol+           " \n " +
+                    " nexusUrl: "      +  NexusURL +               " \n " +
+                    " groupId: "       +  NexusGroupId +           " \n " +
+                    " version: "       +  NexisArtifactVersion +   " \n " +
+                    " repository: "    +  NexusRepoName +          " \n " +
+                    " credentialsId: " +  NexusCredentialsId
+	       )
+
+
+
                nexusArtifactUploader  artifacts:
                [
                    [
