@@ -44,14 +44,14 @@ end
 
 
 ## w/o creds now
-#node['jenkins']['plugins'].each do |jenkins_plugin|
-#  puts(jenkins_plugin)
-#  jenkins_plugin "#{jenkins_plugin}" do
+node['jenkins']['plugins'].each do |jenkins_plugin|
+  puts(jenkins_plugin)
+  jenkins_plugin "#{jenkins_plugin}" do
 ###    username node['jenkins']['admin_user']
 ###    password node['jenkins']['admin_password']
-#    action   :install
-#  end
-#end
+    action   :install
+  end
+end
 
 
 
