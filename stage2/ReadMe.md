@@ -111,25 +111,14 @@ Open petclininc:
 
 
 
-// names of jobs
-def createAllInOneEnvJobName = "create_all_in_one_env"
-def destroyAllInOneEnvJobName = "destroy_all_in_one_node"
-def registerSlaveJobName = "add_dynamic_slave"
-def slaveTestJobName = "test_slave"
-def deleteSlaveJobName = "delete_slave"
-def deployTomcatJobName = 'deploy_tomcat'
-def deployPetclinincJobName = 'deploy_petclininc'
-
-
-
-
+```
 +---------+
 | trigger |      Can be started manually or triggerd by commit
 +---------+       (all parameters are hardcoded)
      |
      |
      |
-+---------+      Job whihc is in fact just wrapper for other jobs
++---------+ <--- Job which is in fact just wrapper for other jobs
 |  all    |
 |         |                      +------------------+                                                                   
 |         | => build artifact => | build_petclinic  |----+                                                                                                     
@@ -179,6 +168,7 @@ def deployPetclinincJobName = 'deploy_petclininc'
 |          |
 |          |
 +----------+
+```
 
 
 
