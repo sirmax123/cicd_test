@@ -257,7 +257,7 @@ directory '/tmp/jobs_to_add' do
 end
 
 jobs_to_be_added.each do |job_to_add|
-    template "jobs_to_add/#{job_to_add}" do
+    template "/tmp/jobs_to_add/#{job_to_add}" do
       source "job/#{job_to_add}"
       mode '0600'
       owner 'root'
