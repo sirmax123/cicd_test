@@ -18,20 +18,20 @@ deps = [
 ]
 
 jobs_to_be_added = [
-  "add_dynamic_slave.groovy",
-  "all.groovy",
-  "build_chuck.groovy",
-  "build_petclinic.groovy",
-  "build_tomcat.groovy",
-  "check_node.groovy",
-  "create_all_in_one_env.groovy",
-  "delete_slave.groovy",
-  "deploy_petclininc.groovy",
-  "deploy_tomcat.groovy",
-  "destroy_all_in_one_node.groovy",
-  "test_slave.groovy",
-  "trigger.groovy",
-  "up.groovy"
+  "add_dynamic_slave.groovy.erb",
+  "all.groovy.erb",
+  "build_chuck.groovy.erb",
+  "build_petclinic.groovy.erb",
+  "build_tomcat.groovy.erb",
+  "check_node.groovy.erb",
+  "create_all_in_one_env.groovy.erb",
+  "delete_slave.groovy.erb",
+  "deploy_petclininc.groovy.erb",
+  "deploy_tomcat.groovy.erb",
+  "destroy_all_in_one_node.groovy.erb",
+  "test_slave.groovy.erb",
+  "trigger.groovy.erb",
+  "up.groovy.erb"
 ]
 
 
@@ -259,7 +259,7 @@ end
 
 jobs_to_be_added.each do |job_to_add|
     template "/tmp/jobs_to_add/#{job_to_add}" do
-      source "job/#{job_to_add}"
+      source "jobs/#{job_to_add}"
       mode '0600'
       owner 'root'
       group 'root'
