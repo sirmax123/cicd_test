@@ -1,5 +1,5 @@
 
-## STAGE 2.
+# STAGE 2.
 Create release infrastructure using local Vagrant/Chef.
 Repository in GitLab as well as base jobs in Jenkins should be pre-created.
 Sources must be pushed manually to pre-created repository.
@@ -34,7 +34,7 @@ So you should pre-create this user on your host system.
 (Vagrant host tested on Mac OS X only, 16Gb RAM is recomended)
 
 
-### Installing
+### Install Env.
 
 
 ```
@@ -44,8 +44,10 @@ git clone https://github.com/sirmax123/cicd_test.git
 ```
 cd cicd_test
 ```
+``` 
+vagrant up
+```
 
-## Stage 2 Ideas and workflow
 For deployment we need 3 infrastructure nodes:
 - GitLab Node (git server)
 - Nexus (Artifact storage)
@@ -64,134 +66,130 @@ ToBeFixed: some names/password are hardcoded in cookbooks, will fix in next vers
 Note:
 Some plugins are rebuild during installation to add Pipeline plugin support.
 
-### Workflow
+### Verify installation:
 
-#### Run installation
-``` 
-vagrant up
-```
-
-#### Verify installation:
 - jenkins: http://10.0.1.10:8080/ (login: root, password: r00tme)
 - nexus: http://10.0.1.12:8081/nexus/ (admin user: admin/admin123, upload user: chucknorris/chucknorris)
 - GitLab: http://http://10.0.1.11 (admin user: root/r00tme123, other user details can be found in Vagrantfile `gitlab: users: [ ... ]` )
 
 
 
-## Running
 
-### Stage2
-#### Run application
+## How to work with env
 
-Befor you start, please pay your attention: running  env will take a long 
-time because petclinic and tomcat server will be build from source code as 
-many times as many backends configured in Vagrantfile
+### Known issues and limitations
+Env. is created for demo, so there are some known limitations
 
-It is done in this way because there are no artifact storage in this configuration. 
+1. Only one petclinic env can be created simultaneously. This will be fixed in next version, but to do this need to create jobs which will provide IP addresses managenet like assign/release IP addresses, configure IP routing etc. So it is not implemented now.
 
-Check Vagrantfile and configure your own IP addreses for nodes if you need it.
-By-default will be deployed 4 nodes
-- 1 DB node with MySQL
-- 2 Backend nodes (Tomcat/Petclinic)
-- 1 Frontend node (Apache in proxy mode)
+2.  Env name ('dynamic-node') is hardcoded now (because we are support now only one application env., see 1.)
 
-```
-cd  stage1
-```
+3. Some usernames/password are still hardcoded (work is in progress)
 
-```
-vagrant up
-```
-For demo reason will be created 2 MySQL databases (First is used for Petclinic, second is created but not used)
-
-You can create any number of backend instances, just configure additional nodes in  `nodes = { ... }` and section in `app_config = { ... }`
+4. ????
 
 
-e.g you can add tomcat3, with correct ip (see `tomcat3[:ip]`): and custom configuration differs from tomcat1 and 2. Or just copy tomcat1 and change ip.
-```
-nodes = {
-  db: {
-    ...
-  },
-  tomcat1: {
-    ...
-  },
-  tomcat2: {
-     ...
-  }
-  tomcat3: {
-    instance_type: 'backend',
-    box: 'centos/6',
-    ip: 'FIX_IP_HERE',
-    roles: [
-      'misc',
-      'petclinic_pre_configure'
-    ],
-    'shell_scripts_pre_chef': [
-      {
-        'inline': 'echo PRE_CHEF_TEST_SCRIPT'
-      }
-    ],  
-    'shell_scripts_post_chef': [
-      {
-        'inline': 'whoami;  id; pwd'
-      },
-      {
-        'path': '01_add_maven_repo_and_install_maven.sh' 
-      },
-      {
-        'path': '02_build_and_install_or_update_tomcat.sh' 
-      },
-      {
-        'path': '03_build_and_deploy_petclinic.sh'
-      }      
-    ]
-    ... 
-  },
-```
+### Deploy Java Petclinic demo app with Jenkins jon
 
-```
-app_config = {
-  tomcat1: {
-    ...
-  },
-  tomcat2: {
-    ...
-  },
-  tomcat3: {
-    chef_json: {
-      misc: {
-        packages_to_install: [
-          ...
-        ],
-      },
-      database_creds: sql_databases[:petclinic],
-      database_host: nodes[:db][:ip]
-    }
-  },
-  ...
-```
-All nodes marked as `instance_type: 'backend'` will be added to frontend load balancer.
-#### Check deployment
-By-default apache is configured on ip 10.0.1.5 and port 80
-You can check PetClinic installation with you faivorite browser or with `curl`  cli tool
+Repository with petclinic app. is pre-created and populated so it is possible to start deploy in 2 ways:
 
-```
-curl http://10.0.1.5/petclinic/owners.html?lastName=
-```
-#### stage1 know issues
-* used cookbooks from SuperMarket, only wrappers are added
-* need to check dependencies, looks like some unused cookbooks are added
-* vm.cpu and vm.memory configuration are non supported  (added in stage2)
-* add-some-more-issues-here
+1. Run manually job with name 'trigger'. It will trigger all workflow and in case of success petclinic app will be accessable at: ??
+
+2. `git push`  to git@10.0.1.11:cicd/petclinic.git repo  on pre-installed GitLab server. Job will be triggered automatically. 
+
+
+###  Verify deployment:
+
+Open petclininc:
+
+ - http://10.0.10.200/petclinic/
 
 
 
-### Stage2
-In progress
 
-### Stage3
-Not implemented
+## Jobs explanation
 
-### Stage4
-Not implemented
+
+
+// names of jobs
+def createAllInOneEnvJobName = "create_all_in_one_env"
+def destroyAllInOneEnvJobName = "destroy_all_in_one_node"
+def registerSlaveJobName = "add_dynamic_slave"
+def slaveTestJobName = "test_slave"
+def deleteSlaveJobName = "delete_slave"
+def deployTomcatJobName = 'deploy_tomcat'
+def deployPetclinincJobName = 'deploy_petclininc'
+
+
+
+
++---------+
+| trigger |      Can be started manually or triggerd by commit
++---------+       (all parameters are hardcoded)
+     |
+     |
+     |
++---------+      Job whihc is in fact just wrapper for other jobs
+|  all    |
+|         |                      +------------------+                                                                   
+|         | => build artifact => | build_petclinic  |----+                                                                                                     
+|         |                      +------------------+    |                                                  
+|         |                                              |                                      
+|         |                                              |                                      
+|         | <=  return build object ---------------------+                                      
+|         |                                                                                                                                                          
+|         |                                                                  +---------------+                   
+|         | => publish artifact (from object reurned by build_petclinic ) => | up (publish)  |--+                                                                    
+|         |                                                                  +---------------+  |                                                                
+|         | <= return build object (artifact: link to nexus)  ----------------------------------+
+|         |        
+|         |    +----------------------------+                                                                        
+|         | => | create_all_in_one_env      |-+    <- Create new node using Vagrant Slave                                                                        
+|         |    +----------------------------+ |                 
+|         | <---------------------------------+
+|  - - - - -TRY BLOCK - - - - - - - - - - - - - - - - - - - - - 
+|              
+|             +-------------------+                                                                      
+|          => | add_dynamic_slave |-+  Register created node as new Jenkins slave
+|             +-------------------+ |                                                            
+|          <= ----------------------+                                                            
+|                                                                                               
+|             +-------------+                                                                               
+|          => |test_slave   |  Do sanity tests of slave
+|             +-------------+                                                                                  
+|                                                                                                                     
+|             +---------------+                                   +------------+                                              
+|          => | deploy_tomcat |---if tomcat was not built before? |build_tomcat|-+                                                                               
+|             |               |                                   +------------+ |              
+|             |               | < ----return tomcat RPM--------------------------+              
+|             +---------------+                                                                                  
+|                                                                                               
+|             +------------------+      
+|          => | deploy_petclininc|-+                                                                                 
+|             +------------------+ |                                                                                 
+|          <= ---------------------+                                                                                      
+|  stage("Do Tests")                                                                                             
+|                                                                                               
+|  - - - - -CATCH BLOCK - - - - - - - - - - - - - - - - - - - - -                                                                                              
+|      Here: calculate do we need to destroy env if deployment fail                                                                                         
+|                                                                                               
+|  - - - - -FINALLY BLOCK - - - - - - - - - - - - - - - - - - - -                                                                                             
+|                                                                                               
+|     Destroy or keep env (depends on status of deployment and settings)                                                                                         
+|          |
+|          |
++----------+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                               
