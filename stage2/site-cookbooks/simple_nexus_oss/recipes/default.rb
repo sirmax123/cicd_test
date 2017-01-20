@@ -43,42 +43,14 @@ template '/etc/init.d/nexus' do
   mode '0755'
   owner 'root'
   group 'root'
-#  variables({
-#    external_url: "#{node['gitlab']['external_url']}",
-#  })
 end
 
-Chef::Log.info("=======")
-Dir.glob("/usr/local/nexus/**/*/").each do |path|
-  file path do
-    owner "nexus"
-    group "nexus"
-  end if File.file?(path)  
-  directory path do
-    recursive true
-    owner "nexus"
-    group "nexus"
-    mode  "0755"
-  end if File.directory?(path)
-
+bash 'set_permissions' do
+  cwd '/usr/local/nexus'
+  code  <<-EOF
+    chown nexus:nexus -Rc /usr/local/nexus/
+  EOF
 end
-
-Dir.glob("/usr/local/nexus/**/*").each do |path|
-  file path do
-    owner "nexus"
-    group "nexus"
-  end if File.file?(path)  
-  directory path do
-    recursive true
-    owner "nexus"
-    group "nexus"
-    mode  "0755"
-  end if File.directory?(path)
-
-end
-
-Chef::Log.info("=======")
-
 
 service "nexus" do
   action [:start, :enable]
