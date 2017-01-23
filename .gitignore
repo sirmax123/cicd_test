@@ -2,4 +2,6 @@ stage1/.vagrant/
 stage2/.vagrant/
 stage3/.vagrant/
 stage4/.vagrant/
+*.class
+
 

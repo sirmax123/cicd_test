@@ -153,7 +153,9 @@ curl http://10.0.1.5/petclinic/owners.html?lastName=
 
 
 ### Stage2
-In progress
+
+https://github.com/sirmax123/cicd_test/blob/master/stage2/ReadMe.md
+
 
 ### Stage3
 Not implemented
