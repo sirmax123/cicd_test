@@ -25,7 +25,16 @@ stopit() {
 }
 
 status() {
-    echo 
+    if [ "$(ps -auxfw  2>/dev/null | grep nexus | grep -v grep | grep java | wc -l)" -ge 1 ]
+    then
+	echo " Running"
+	echo 0
+       exit 0
+    else
+	echo " Stopped"
+	echo 1
+	exit 1
+    fi
 }
 
 dump() {

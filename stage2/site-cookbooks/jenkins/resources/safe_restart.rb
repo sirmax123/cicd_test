@@ -9,7 +9,7 @@ action :do_safe_restart  do
   else
     jenkins_cli = get_jenkins_cli() + " -s #{jenkins_url}  safe-restart"
   end
-  cmd = " #{jenkins_cli}"
+  cmd = " #{jenkins_cli}; sleep 30;"
   res = `#{cmd}`
 end
 
